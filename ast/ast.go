@@ -109,3 +109,16 @@ func (id *Identifier) ToString() string{
     return id.Value
 }
 
+type ExprStmt struct{
+    Token token.Token
+    Expr Expr
+}
+
+func (e *ExprStmt) stmtNode(){}
+func (e *ExprStmt) TokenLit() string { 
+    return e.Token.Literal
+}
+
+func (e *ExprStmt) ToString() string{
+    return ""
+}
