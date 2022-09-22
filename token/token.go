@@ -13,10 +13,18 @@ const (
     ILLEGAL = "ILLEGAL"
     EOF = "EOF"
     PLUS = "+"
+    
+    // Identifier token
     IDENT = "IDENT"
+
+    // integer
     INT = "INT"
-    //LET = "LET"
+    
+
+    //Equal = sign; for assignment
     EQ = "="
+
+
     EQEQ = "=="
     NOT_EQ = "!="
     MUL = "*"
@@ -42,7 +50,7 @@ const (
 )
 
 var Keywords = map[string]TokenType{
-    
+ 
     "fn" : FUNC,
     "let" : LET,
     "true" : TRUE,

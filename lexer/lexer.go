@@ -31,6 +31,8 @@ func NewLexer(input string) Lexer{
 }
 
 func (l *Lexer) readChar(){
+//Advances lexer
+
     if l.readPos >= len(l.input){
         l.ch = 0
     }else{
@@ -41,7 +43,8 @@ func (l *Lexer) readChar(){
 }
 
 func (l *Lexer) NextToken() token.Token{
-    
+// Get next token 
+
     var tk token.Token
     l.eatWhitespace() 
     switch l.ch{
