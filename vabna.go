@@ -13,7 +13,8 @@ import (
 
 func main(){
     
-    examplecode := `let something = 1; return something;`
+    examplecode := `let something = 1;
+    hello;`
     
     l := lexer.NewLexer(examplecode)
     p := parser.NewParser(&l)

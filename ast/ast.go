@@ -99,7 +99,7 @@ type Identifier struct{
     Value string
 }
 
-func (id *Identifier) stmtNode(){}
+func (id *Identifier) exprNode(){}
 func (id *Identifier) TokenLit() string{
     return id.Token.Literal
 }
@@ -108,6 +108,38 @@ func (id *Identifier) ToString() string{
 
     return id.Value
 }
+
+type IntLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (il *IntLiteral) exprNode()      {}
+func (il *IntLiteral) TokenLit() string { return il.Token.Literal }
+func (il *IntLiteral) ToString() string       { return il.Token.Literal }
+
+
+type PrefixExpr struct {
+	Token token.Token
+	Op string
+    Right Expr
+}
+
+func (p *PrefixExpr) exprNode()      {}
+func (p *PrefixExpr) TokenLit() string { return p.Token.Literal }
+func (p *PrefixExpr) ToString() string{
+
+    var out bytes.Buffer
+    out.WriteString("(")
+    out.WriteString(p.Op)
+    out.WriteString(p.Right.ToString())
+    out.WriteString(")")
+
+    return out.String()
+
+}
+
+
 
 type ExprStmt struct{
     Token token.Token
@@ -120,5 +152,8 @@ func (e *ExprStmt) TokenLit() string {
 }
 
 func (e *ExprStmt) ToString() string{
+    if e.Expr != nil{
+        return e.Expr.ToString()
+    }
     return ""
 }

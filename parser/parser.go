@@ -2,10 +2,23 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 	"vabna/ast"
 	"vabna/lexer"
 	"vabna/token"
-    log "github.com/sirupsen/logrus"
+
+	log "github.com/sirupsen/logrus"
+)
+
+const (
+    _ int = iota
+    LOWEST 
+    EQUALS 
+    LTGT
+    SUM
+    PROD
+    PREFIX 
+    CALL
 )
 
 type Parser struct{
@@ -14,13 +27,25 @@ type Parser struct{
     peekTok token.Token
 
     errs []string
+
+    prefixParseFns map[token.TokenType]prefixParseFn
+    infixParseFns map[token.TokenType]infixParseFn
 }
+
+type(
+    prefixParseFn func() ast.Expr
+    infixParseFn func(ast.Expr) ast.Expr
+)
 
 func NewParser(l *lexer.Lexer) Parser{
      
     p:= Parser{lx: l,
     errs: []string{},
-}
+    }
+    
+    p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+    p.regPrefix(token.IDENT , p.parseIdent)
+    p.regPrefix(token.INT , p.parseIntLit)
     p.nextToken()
     p.nextToken()
     //fmt.Println(p.curTok , p.peekTok)
@@ -32,6 +57,14 @@ func (p *Parser) GetErrors() []string{
     return p.errs
 }
 
+func (p *Parser) regPrefix(tokenType token.TokenType , fn prefixParseFn){
+    p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) regInflix(tokenType token.TokenType , fn infixParseFn){
+    p.infixParseFns[tokenType] = fn
+}
+
 func (p *Parser) peekErr(t token.TokenType){
     msg := fmt.Sprintf("expected token %s, but got %s instead" , t , p.peekTok.Type)
 
@@ -41,6 +74,33 @@ func (p *Parser) peekErr(t token.TokenType){
 func (p *Parser) nextToken(){
     p.curTok = p.peekTok
     p.peekTok = p.lx.NextToken()
+}
+
+func (p *Parser) parseIdent() ast.Expr{
+    
+    return &ast.Identifier{
+        Token: p.curTok,
+        Value: p.curTok.Literal,
+    }
+
+}
+
+func (p *Parser) parseIntLit() ast.Expr{
+    l := &ast.IntLiteral{
+        Token: p.curTok,
+    }
+
+    value, err := strconv.ParseInt(p.curTok.Literal , 0 , 64)
+    
+    if err != nil{
+        msg := fmt.Sprintf("Failed to parse %q as integer" , p.curTok.Literal)
+        p.errs = append(p.errs, msg)
+        return nil
+    }
+
+    l.Value = value
+    return l
+
 }
 
 func (p *Parser) ParseProg() *ast.Program{
@@ -69,7 +129,7 @@ func (p *Parser) parseStmt() ast.Stmt{
         case token.RETURN:
             return p.parseReturnStmt()
         default:
-            return nil
+            return p.parseExprStmt()
 
     }
 }
@@ -112,6 +172,31 @@ func (p *Parser) parseLetStmt() *ast.LetStmt{
 
 }
 
+func (p *Parser) parseExprStmt() *ast.ExprStmt{
+    stmt := &ast.ExprStmt{Token: p.curTok}
+
+    stmt.Expr = p.parseExpr(LOWEST) 
+
+    if p.isPeekToken(token.SEMICOLON){
+        p.nextToken()
+    }
+    
+    return stmt
+}
+
+func (p *Parser) parseExpr(precedence int) ast.Expr{
+    prefix := p.prefixParseFns[p.curTok.Type]
+
+    if prefix == nil{
+        return nil 
+    }
+
+    leftExp := prefix()
+
+    return leftExp
+}
+
+// Helper functions
 func (p *Parser) isCurToken(t token.TokenType) bool{
 // check if current token type is `t`
     return p.curTok.Type == t
