@@ -36,6 +36,10 @@ const (
 	GT        = ">"
 	SEMICOLON = ";"
 	COMMA     = ","
+    LPAREN    = "("
+    RPAREN    = ")"
+    LBRACE    = "{"
+    RBRACE    = "}"
 
 	//Keywords
 

@@ -61,6 +61,11 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regPrefix(token.INT, p.parseIntegerLit)
 	p.regPrefix(token.MINUS, p.parsePrefixExpr)
 	p.regPrefix(token.EXC, p.parsePrefixExpr)
+    p.regPrefix(token.TRUE , p.parseBool)
+    p.regPrefix(token.FALSE , p.parseBool)
+    p.regPrefix(token.LPAREN , p.parseGroupedExpr)
+    p.regPrefix(token.IF , p.parseIfExpr)
+    p.regPrefix(token.FUNC , p.parseFunc)
 
 	//register infix functions
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -78,6 +83,54 @@ func NewParser(l *lexer.Lexer) *Parser {
 	//fmt.Println(p.curTok , p.peekTok)
 	return p
 
+}
+
+func (p *Parser) parseFunc() ast.Expr{
+    fl := &ast.FunctionLit{Token: p.curTok}
+
+    if !p.peek(token.LPAREN){
+        return nil
+    }
+
+    fl.Params = p.parseFuncParams()
+
+    if !p.peek(token.LBRACE){
+        return nil
+    }
+
+    fl.Body = p.parseBlockStmt()
+    
+    log.Info("FN EXPR => ",  fl.Body.ToString())
+
+    return fl
+}
+
+func (p *Parser) parseFuncParams() []*ast.Identifier{
+    ids := []*ast.Identifier{}
+
+    if p.isPeekToken(token.RPAREN){
+        p.nextToken()
+        return ids
+    }
+
+    p.nextToken()
+
+    id := &ast.Identifier{Token: p.curTok , Value: p.curTok.Literal}
+    ids = append(ids, id)
+    
+    for p.isPeekToken(token.COMMA){
+        p.nextToken()
+        p.nextToken()
+        id := &ast.Identifier{Token: p.curTok , Value: p.curTok.Literal}
+        ids = append(ids, id)
+    }
+
+    if !p.peek(token.RPAREN){
+        return nil
+    }
+
+    log.Info("FUNC PARAMS => " , ids)
+    return ids
 }
 
 func (p *Parser) GetErrors() []string {
@@ -187,6 +240,18 @@ func (p *Parser) noPrefixFunctionErr(t token.TokenType) {
 	p.errs = append(p.errs, msg)
 }
 
+func (p *Parser) parseGroupedExpr() ast.Expr{
+    p.nextToken()
+    exp := p.parseExpr(LOWEST)
+
+    if !p.peek(token.RPAREN){
+        return nil
+
+    }
+
+    return exp
+}
+
 func (p *Parser) parseExpr(prec int) ast.Expr {
 	prefix := p.prefixParseFns[p.curTok.Type]
 	if prefix == nil {
@@ -221,8 +286,13 @@ func (p *Parser) parseIdent() ast.Expr {
 
 }
 
+func (p *Parser) parseBool() ast.Expr{
+    log.Info("BOOL EXPR => " , p.curTok)
+    return &ast.Boolean{ Token: p.curTok , Value: p.isCurToken(token.TRUE) }
+}
+
 func (p *Parser) parseIntegerLit() ast.Expr {
-	log.Info("INT EXPR =>", p.curTok)
+	
 	lit := &ast.IntegerLit{Token: p.curTok}
 
 	value, err := strconv.ParseInt(p.curTok.Literal, 0, 64)
@@ -235,6 +305,7 @@ func (p *Parser) parseIntegerLit() ast.Expr {
 
 	lit.Value = value
     //p.nextToken()
+    log.Info("INT EXPR =>", value)
 
 	return lit
 }
@@ -247,12 +318,13 @@ func (p *Parser) parsePrefixExpr() ast.Expr {
 
 	p.nextToken()
 	exp.Right = p.parseExpr(PREFIX)
+
+    log.Info("PREFIX => " , exp.Token , exp.Right)
 	return exp
 }
 
 func (p *Parser) parseInfixExpr(left ast.Expr) ast.Expr {
 
-    log.Info("INFIX => " , left , p.curTok.Literal , left)
 	exp := &ast.InfixExpr{
 		Token: p.curTok,
 		Op:    p.curTok.Literal,
@@ -263,9 +335,62 @@ func (p *Parser) parseInfixExpr(left ast.Expr) ast.Expr {
 	p.nextToken()
 	exp.Right = p.parseExpr(prec)
     
+    log.Info("INFIX => " , exp.Left , exp.Op , exp.Right)
     
 
 	return exp
+}
+
+func (p *Parser) parseIfExpr() ast.Expr{
+    exp := &ast.IfExpr{Token: p.curTok}
+
+    if !p.peek(token.LPAREN){
+        return nil
+    }
+    p.nextToken()
+    exp.Cond = p.parseExpr(LOWEST)
+
+    if !p.peek(token.RPAREN){
+        return nil
+    }
+
+    if !p.peek(token.LBRACE){
+        return nil
+    }
+
+    exp.TrueBlock = p.parseBlockStmt()
+    
+    if p.isPeekToken(token.ELSE){
+        p.nextToken()
+
+        if !p.peek(token.LBRACE){
+            return nil
+        }
+
+        exp.ElseBlock = p.parseBlockStmt()
+    }
+    
+    log.Info("IF Expr => " , exp.Cond , exp.TrueBlock.ToString() , exp.ElseBlock.ToString())
+
+    return exp
+}
+
+func (p *Parser) parseBlockStmt() *ast.BlockStmt{
+    bs := &ast.BlockStmt{Token: p.curTok}
+
+    bs.Stmts = []ast.Stmt{}
+
+    p.nextToken()
+
+    for !p.isCurToken(token.RBRACE) && !p.isCurToken(token.EOF){
+        s := p.parseStmt()
+        if s != nil{
+            bs.Stmts = append(bs.Stmts, s)
+        }
+        p.nextToken()
+    }
+
+    return bs
 }
 
 // Helper functions

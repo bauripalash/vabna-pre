@@ -13,7 +13,9 @@ import (
 
 func main() {
 
-	examplecode := `a+b*c`
+	examplecode := `
+        fn() { return a+b; }
+    `
 
 	l := lexer.NewLexer(examplecode)
 	p := parser.NewParser(&l)
