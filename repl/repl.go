@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"vabna/lexer"
-	"vabna/token"
+    "vabna/parser"
 )
 
 const PROMPT = "-> "
@@ -24,8 +24,22 @@ func Repl(in io.Reader, out io.Writer) {
 		input := scanner.Text()
 		rlexer := lexer.NewLexer(input)
 
-		for tok := rlexer.NextToken(); tok.Type != token.EOF; tok = rlexer.NextToken() {
-			fmt.Fprintf(out, "%+v\n", tok)
-		}
+	    p := parser.NewParser(&rlexer)
+
+        prog := p.ParseProg()
+
+        if len(p.GetErrors()) != 0{
+            showParseErrors(out , p.GetErrors())
+            continue
+        }
+
+        io.WriteString(out , prog.ToString())
+        io.WriteString(out , "\n")
 	}
+}
+
+func showParseErrors(out io.Writer , errs []string){
+    for _,msg := range errs{
+        io.WriteString(out , "\t ERR >" + msg + "\n")
+    }
 }

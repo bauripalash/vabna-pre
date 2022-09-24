@@ -31,7 +31,7 @@ func main() {
 		log.Warnln(errs)
 	}
 
-	startRepl := false
+	startRepl := true
 
 	if startRepl {
 		user, err := user.Current()
