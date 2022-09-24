@@ -247,6 +247,7 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 	if !p.peek(token.EQ) {
 		return nil
 	}
+    p.nextToken()
     stmt.Value = p.parseExpr(LOWEST)
 
 	for p.isPeekToken(token.SEMICOLON) {
