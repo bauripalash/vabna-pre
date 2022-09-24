@@ -49,9 +49,9 @@ type (
 	infixParseFn  func(ast.Expr) ast.Expr
 )
 
-func NewParser(l *lexer.Lexer) Parser {
+func NewParser(l *lexer.Lexer) *Parser {
 
-	p := Parser{lx: l,
+	p := &Parser{lx: l,
 		errs: []string{},
 	}
 
@@ -72,7 +72,8 @@ func NewParser(l *lexer.Lexer) Parser {
 	p.regInfix(token.NOT_EQ, p.parseInfixExpr)
 	p.regInfix(token.LT, p.parseInfixExpr)
 	p.regInfix(token.GT, p.parseInfixExpr)
-	p.nextToken()
+
+    p.nextToken()
 	p.nextToken()
 	//fmt.Println(p.curTok , p.peekTok)
 	return p
@@ -233,6 +234,7 @@ func (p *Parser) parseIntegerLit() ast.Expr {
 	}
 
 	lit.Value = value
+    //p.nextToken()
 
 	return lit
 }
@@ -249,6 +251,8 @@ func (p *Parser) parsePrefixExpr() ast.Expr {
 }
 
 func (p *Parser) parseInfixExpr(left ast.Expr) ast.Expr {
+
+    log.Info("INFIX => " , left , p.curTok.Literal , left)
 	exp := &ast.InfixExpr{
 		Token: p.curTok,
 		Op:    p.curTok.Literal,
@@ -258,6 +262,8 @@ func (p *Parser) parseInfixExpr(left ast.Expr) ast.Expr {
 	prec := p.curPrec()
 	p.nextToken()
 	exp.Right = p.parseExpr(prec)
+    
+    
 
 	return exp
 }

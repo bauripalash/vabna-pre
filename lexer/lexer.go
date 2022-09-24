@@ -78,7 +78,7 @@ func (l *Lexer) NextToken() token.Token {
 			lit := string(ch) + string(l.ch)
 			tk = token.Token{Type: token.NOT_EQ, Literal: lit}
 		} else {
-			tk = NewToken(token.EQ, l.ch)
+			tk = NewToken(token.EXC, l.ch)
 		}
 	case 0:
 		tk.Literal = ""
