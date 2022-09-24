@@ -11,37 +11,36 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func main(){
-    
-    examplecode := `let something = 1;
-    hello;`
-    
-    l := lexer.NewLexer(examplecode)
-    p := parser.NewParser(&l)
-    fmt.Printf("AST:\n%v\n" , p.ParseProg().ToString())
+func main() {
 
-    if len(p.GetErrors()) > 0{
-        var errs string
+	examplecode := `5-1`
 
-        for _,err := range p.GetErrors(){
-            errs += fmt.Sprintf("%s\n" , err)
-        }
+	l := lexer.NewLexer(examplecode)
+	p := parser.NewParser(&l)
+	fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
 
-        log.Warnln(errs)
-    }
-    
-    startRepl := false
+	if len(p.GetErrors()) > 0 {
+		var errs string
 
-    if startRepl{
-    user, err := user.Current()
+		for _, err := range p.GetErrors() {
+			errs += fmt.Sprintf("%s\n", err)
+		}
 
-    if err != nil{
-        panic(err)
-    }
+		log.Warnln(errs)
+	}
 
-    fmt.Printf("Hey, %s\n" , user.Username)
+	startRepl := false
 
-    repl.Repl(os.Stdin, os.Stdout)
-    }  
-   
+	if startRepl {
+		user, err := user.Current()
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Hey, %s\n", user.Username)
+
+		repl.Repl(os.Stdin, os.Stdout)
+	}
+
 }

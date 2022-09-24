@@ -8,26 +8,24 @@ import (
 	"vabna/token"
 )
 
-
 const PROMPT = "-> "
 
-func Repl(in io.Reader , out io.Writer){
-    scanner := bufio.NewScanner(in)
+func Repl(in io.Reader, out io.Writer) {
+	scanner := bufio.NewScanner(in)
 
-    for{
-        fmt.Fprintf(out , PROMPT)
-        scanned := scanner.Scan()
+	for {
+		fmt.Fprintf(out, PROMPT)
+		scanned := scanner.Scan()
 
-        if !scanned{
-            return 
-        }
+		if !scanned {
+			return
+		}
 
-        input := scanner.Text()
-        rlexer := lexer.NewLexer(input)
+		input := scanner.Text()
+		rlexer := lexer.NewLexer(input)
 
-
-        for tok := rlexer.NextToken(); tok.Type!= token.EOF; tok  = rlexer.NextToken(){
-            fmt.Fprintf(out , "%+v\n" , tok)
-        }
-    }
+		for tok := rlexer.NextToken(); tok.Type != token.EOF; tok = rlexer.NextToken() {
+			fmt.Fprintf(out, "%+v\n", tok)
+		}
+	}
 }
