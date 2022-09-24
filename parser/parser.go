@@ -31,6 +31,7 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:  SUM,
 	token.DIV:    PROD,
 	token.MUL:    PROD,
+    token.LPAREN:   CALL,
 }
 
 type Parser struct {
@@ -77,6 +78,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regInfix(token.NOT_EQ, p.parseInfixExpr)
 	p.regInfix(token.LT, p.parseInfixExpr)
 	p.regInfix(token.GT, p.parseInfixExpr)
+    p.regInfix(token.LPAREN , p.parseCallExpr)
 
     p.nextToken()
 	p.nextToken()
@@ -131,6 +133,36 @@ func (p *Parser) parseFuncParams() []*ast.Identifier{
 
     log.Info("FUNC PARAMS => " , ids)
     return ids
+}
+
+func (p *Parser) parseCallExpr(function ast.Expr) ast.Expr{
+    exp := &ast.CallExpr{Token: p.curTok , Func: function}
+    exp.Args = p.parseCallArgs()
+    return exp
+}
+
+func (p *Parser) parseCallArgs() []ast.Expr{
+    args := []ast.Expr{}
+
+    if p.isPeekToken(token.RPAREN){
+        p.nextToken()
+        return args
+    }
+
+    p.nextToken()
+    args = append(args, p.parseExpr(LOWEST))
+
+    for p.isPeekToken(token.COMMA){
+        p.nextToken()
+        p.nextToken()
+        args = append(args, p.parseExpr(LOWEST))
+    }
+
+    if !p.peek(token.RPAREN){
+        return nil
+    }
+
+    return args
 }
 
 func (p *Parser) GetErrors() []string {
@@ -192,9 +224,11 @@ func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 
 	p.nextToken()
 
-	for !p.isCurToken(token.SEMICOLON) {
-		p.nextToken()
-	}
+    stmt.ReturnVal = p.parseExpr(LOWEST)
+
+    if p.isPeekToken(token.SEMICOLON){
+        p.nextToken()
+    }
 
 	log.Info(fmt.Sprintf("RETURN STMT => %v\n", stmt))
 
@@ -213,8 +247,9 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 	if !p.peek(token.EQ) {
 		return nil
 	}
+    stmt.Value = p.parseExpr(LOWEST)
 
-	for !p.isCurToken(token.SEMICOLON) {
+	for p.isPeekToken(token.SEMICOLON) {
 		p.nextToken()
 	}
 
