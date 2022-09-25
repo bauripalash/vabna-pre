@@ -17,7 +17,7 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 	case *ast.Program:
 		return evalProg(node, env)
 	case *ast.ExprStmt:
-		fmt.Println("Eval Expr => ", node)
+		//fmt.Println("Eval Expr => ", node)
 		return Eval(node.Expr, env)
 	case *ast.IntegerLit:
 		return &object.Integer{Value: node.Value}
@@ -153,16 +153,19 @@ func evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.Obj {
 	var res object.Obj
 
 	for _, stmt := range block.Stmts {
-		res := Eval(stmt, env)
+		res = Eval(stmt, env)
+
+        //fmt.Println("E_BS=> " , res)
 
 		if res != nil {
 			rtype := res.Type()
 			if rtype == object.RETURN_VAL_OBJ || rtype == object.ERR_OBJ {
+                //fmt.Println("RET => " ,  res)
 				return res
 			}
 		}
 	}
-
+    //fmt.Println("EBS 2=>" ,res)
 	return res
 }
 

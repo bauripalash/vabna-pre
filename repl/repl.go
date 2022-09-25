@@ -37,6 +37,7 @@ func Repl(in io.Reader, out io.Writer) {
 		}
 		evals := evaluator.Eval(prog, env)
 		if evals != nil {
+            //fmt.Println(evals)
 			io.WriteString(out, evals.Inspect())
 			io.WriteString(out, "\n")
 		}

@@ -8,7 +8,7 @@ import (
 
 type Node interface {
 	TokenLit() string
-	ToString() string
+	String() string
 }
 
 type Stmt interface {
@@ -37,12 +37,12 @@ func (p *Program) TokenLit() string {
 
 }
 
-func (p *Program) ToString() string {
+func (p *Program) String() string {
 
 	var out bytes.Buffer
 
 	for _, stmt := range p.Stmts {
-		out.WriteString(stmt.ToString())
+		out.WriteString(stmt.String())
 	}
 
 	return out.String()
@@ -62,15 +62,15 @@ func (lst *LetStmt) TokenLit() string {
 	return lst.Token.Literal
 }
 
-func (lst *LetStmt) ToString() string {
+func (lst *LetStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(lst.TokenLit() + " ")
-	out.WriteString(lst.Name.ToString())
+	out.WriteString(lst.Name.String())
 	out.WriteString(" = ")
 
 	if lst.Value != nil {
-		out.WriteString(lst.Value.ToString())
+		out.WriteString(lst.Value.String())
 	}
 
 	out.WriteString(";")
@@ -90,12 +90,12 @@ func (r *ReturnStmt) TokenLit() string {
 	return r.Token.Literal
 }
 
-func (r *ReturnStmt) ToString() string {
+func (r *ReturnStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(r.TokenLit() + " ")
 	if r.ReturnVal != nil {
-		out.WriteString(r.ReturnVal.ToString())
+		out.WriteString(r.ReturnVal.String())
 	}
 	out.WriteString(";")
 	return out.String()
@@ -112,7 +112,17 @@ func (e *ExprStmt) TokenLit() string {
 	return e.Token.Literal
 }
 
-func (e *ExprStmt) ToString() string {
+func (e *ExprStmt) String() string {
+	//fmt.Println(e.Expr.TokenLit())
+	if e.Expr != nil {
+		return e.Expr.String()
+	} else {
+
+		return ""
+	}
+}
+/*
+func (e *ExprStmt) String() string {
 	//fmt.Println(e.Expr.TokenLit())
 	if e.Expr != nil {
 		return e.Expr.ToString()
@@ -121,6 +131,8 @@ func (e *ExprStmt) ToString() string {
 		return ""
 	}
 }
+*/
+
 
 // Identifier Expression
 
@@ -134,7 +146,7 @@ func (id *Identifier) TokenLit() string {
 	return id.Token.Literal
 }
 
-func (id *Identifier) ToString() string {
+func (id *Identifier) String() string {
 
 	return id.Value
 }
@@ -151,7 +163,7 @@ func (in *IntegerLit) TokenLit() string {
 	return in.Token.Literal
 }
 
-func (in *IntegerLit) ToString() string {
+func (in *IntegerLit) String() string {
 	return in.Token.Literal
 }
 
@@ -165,12 +177,12 @@ type PrefixExpr struct {
 
 func (pref *PrefixExpr) exprNode()        {}
 func (pref *PrefixExpr) TokenLit() string { return pref.Token.Literal }
-func (pref *PrefixExpr) ToString() string {
+func (pref *PrefixExpr) String() string {
 
 	var out bytes.Buffer
 	out.WriteString("(")
 	out.WriteString(pref.Op)
-	out.WriteString(pref.Right.ToString())
+	out.WriteString(pref.Right.String())
 	out.WriteString(")")
 	return out.String()
 
@@ -187,13 +199,13 @@ type InfixExpr struct {
 
 func (inf *InfixExpr) exprNode()        {}
 func (inf *InfixExpr) TokenLit() string { return inf.Token.Literal }
-func (inf *InfixExpr) ToString() string {
+func (inf *InfixExpr) String() string {
 
 	var out bytes.Buffer
 	out.WriteString("(")
-	out.WriteString(inf.Left.ToString())
+	out.WriteString(inf.Left.String())
 	out.WriteString(" " + inf.Op + " ")
-	out.WriteString(inf.Right.ToString())
+	out.WriteString(inf.Right.String())
 	out.WriteString(")")
 	return out.String()
 
@@ -207,7 +219,7 @@ type Boolean struct {
 
 func (b *Boolean) exprNode()        {}
 func (b *Boolean) TokenLit() string { return b.Token.Literal }
-func (b *Boolean) ToString() string { return b.Token.Literal }
+func (b *Boolean) String() string { return b.Token.Literal }
 
 type BlockStmt struct {
 	Token token.Token
@@ -216,10 +228,10 @@ type BlockStmt struct {
 
 func (bs *BlockStmt) stmtNode()        {}
 func (bs *BlockStmt) TokenLit() string { return bs.Token.Literal }
-func (bs *BlockStmt) ToString() string {
+func (bs *BlockStmt) String() string {
 	var out bytes.Buffer
 	for _, s := range bs.Stmts {
-		out.WriteString(s.ToString())
+		out.WriteString(s.String())
 	}
 	return out.String()
 }
@@ -233,17 +245,17 @@ type IfExpr struct {
 
 func (i *IfExpr) exprNode()        {}
 func (i *IfExpr) TokenLit() string { return i.Token.Literal }
-func (i *IfExpr) ToString() string {
+func (i *IfExpr) String() string {
 
 	var out bytes.Buffer
 	out.WriteString("if")
-	out.WriteString(i.Cond.ToString())
+	out.WriteString(i.Cond.String())
 	out.WriteString(" ")
-	out.WriteString(i.TrueBlock.ToString())
+	out.WriteString(i.TrueBlock.String())
 	if i.ElseBlock != nil {
 
 		out.WriteString("else ")
-		out.WriteString(i.ElseBlock.ToString())
+		out.WriteString(i.ElseBlock.String())
 	}
 	return out.String()
 
@@ -257,18 +269,18 @@ type FunctionLit struct {
 
 func (fl *FunctionLit) exprNode()        {}
 func (fl *FunctionLit) TokenLit() string { return fl.Token.Literal }
-func (fl *FunctionLit) ToString() string {
+func (fl *FunctionLit) String() string {
 	var out bytes.Buffer
 
 	params := []string{}
 	for _, p := range fl.Params {
-		params = append(params, p.ToString())
+		params = append(params, p.String())
 	}
 	out.WriteString(fl.TokenLit())
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")
-	out.WriteString(fl.Body.ToString())
+	out.WriteString(fl.Body.String())
 	return out.String()
 }
 
@@ -281,13 +293,14 @@ type CallExpr struct {
 
 func (ce *CallExpr) exprNode()        {}
 func (ce *CallExpr) TokenLit() string { return ce.Token.Literal }
-func (ce *CallExpr) ToString() string {
+func (ce *CallExpr) String() string {
 	var out bytes.Buffer
 	args := []string{}
 	for _, a := range ce.Args {
-		args = append(args, a.ToString())
+		args = append(args, a.String())
+
 	}
-	out.WriteString(ce.Func.ToString())
+	out.WriteString(ce.Func.String())
 	out.WriteString("(")
 	out.WriteString(strings.Join(args, ", "))
 	out.WriteString(")")

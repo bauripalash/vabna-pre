@@ -102,7 +102,7 @@ func (p *Parser) parseFunc() ast.Expr {
 
 	fl.Body = p.parseBlockStmt()
 
-	log.Info("FN EXPR => ", fl.Body.ToString())
+    log.Info("FN EXPR => ", fl.Body.String())
 
 	return fl
 }
@@ -260,6 +260,7 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 }
 
 func (p *Parser) parseExprStmt() *ast.ExprStmt {
+    //fmt.Println(p.curTok)
 	stmt := &ast.ExprStmt{Token: p.curTok}
 
 	stmt.Expr = p.parseExpr(LOWEST)
@@ -267,7 +268,7 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 	if p.isPeekToken(token.SEMICOLON) {
 		p.nextToken()
 	}
-
+    //fmt.Println("expr stmt->>>" , stmt)
 	return stmt
 }
 
@@ -308,7 +309,8 @@ func (p *Parser) parseExpr(prec int) ast.Expr {
 
 		leftExpr = infix(leftExpr)
 	}
-
+    
+    //fmt.Println(leftExpr)
 	return leftExpr
 
 }
@@ -384,7 +386,7 @@ func (p *Parser) parseIfExpr() ast.Expr {
 	}
 	p.nextToken()
 	exp.Cond = p.parseExpr(LOWEST)
-	fmt.Println(exp.Cond)
+	//fmt.Println(exp.Cond)
 
 	if !p.peek(token.RPAREN) {
 		return nil
@@ -407,9 +409,9 @@ func (p *Parser) parseIfExpr() ast.Expr {
 	}
 
 	if has_else {
-		log.Info("IF ELSE Expr => ", exp.Cond, exp.TrueBlock.ToString(), exp.ElseBlock.ToString())
+		log.Info("IF ELSE Expr => ", exp.Cond, exp.TrueBlock.String(), exp.ElseBlock.String())
 	} else {
-		log.Info("IF Expr => ", exp.Cond, exp.TrueBlock.ToString())
+		log.Info("IF Expr => ", exp.Cond, exp.TrueBlock.String())
 	}
 
 	return exp
@@ -429,6 +431,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 		}
 		p.nextToken()
 	}
+    //fmt.Println("BS=> " , bs)
 
 	return bs
 }

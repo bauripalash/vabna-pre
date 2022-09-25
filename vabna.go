@@ -4,17 +4,31 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+    /*
 	"vabna/evaluator"
 	"vabna/lexer"
 	"vabna/object"
 	"vabna/parser"
+    */
 	"vabna/repl"
+    
 
 	log "github.com/sirupsen/logrus"
 )
 
-func main() {
+func init() {
+	log.SetLevel(log.WarnLevel)
+    log.SetFormatter(&log.TextFormatter{
+        PadLevelText: true,
+        FullTimestamp: true,
 
+    })
+    
+	log.SetOutput(os.Stdout)
+}
+
+func main() {
+/*
 	examplecode := `
         let newAdder = fn(x) { fn(y) {x+y} };
         let addTwo = newAdder(2);
@@ -27,7 +41,6 @@ func main() {
 	env := object.NewEnv()
 	e := evaluator.Eval(p.ParseProg(), env)
 	fmt.Println(e)
-
 	//fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
 
 	if len(p.GetErrors()) > 0 {
@@ -39,7 +52,7 @@ func main() {
 
 		log.Warnln(errs)
 	}
-
+*/
 	startRepl := true
 
 	if startRepl {
