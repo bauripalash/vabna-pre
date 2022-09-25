@@ -71,14 +71,14 @@ func (l *Lexer) NextToken() token.Token {
 		tk = NewToken(token.LT, l.ch)
 	case '>':
 		tk = NewToken(token.GT, l.ch)
-    case '(':
-        tk = NewToken(token.LPAREN , l.ch)
-    case ')':
-        tk = NewToken(token.RPAREN , l.ch)
-    case '{':
-        tk = NewToken(token.LBRACE , l.ch)
-    case '}':
-        tk = NewToken(token.RBRACE , l.ch)
+	case '(':
+		tk = NewToken(token.LPAREN, l.ch)
+	case ')':
+		tk = NewToken(token.RPAREN, l.ch)
+	case '{':
+		tk = NewToken(token.LBRACE, l.ch)
+	case '}':
+		tk = NewToken(token.RBRACE, l.ch)
 	case '!':
 		if l.peekChar() == '=' {
 			ch := l.ch

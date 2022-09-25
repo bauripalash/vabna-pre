@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"vabna/evaluator"
 	"vabna/lexer"
+	"vabna/object"
 	"vabna/parser"
 	"vabna/repl"
 
@@ -14,12 +16,19 @@ import (
 func main() {
 
 	examplecode := `
-        fn() { return a+b; }
+        let newAdder = fn(x) { fn(y) {x+y} };
+        let addTwo = newAdder(2);
+        addTwo
+
     `
 
 	l := lexer.NewLexer(examplecode)
 	p := parser.NewParser(&l)
-	fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
+	env := object.NewEnv()
+	e := evaluator.Eval(p.ParseProg(), env)
+	fmt.Println(e)
+
+	//fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
 
 	if len(p.GetErrors()) > 0 {
 		var errs string
