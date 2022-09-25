@@ -406,7 +406,7 @@ func (p *Parser) parseIfExpr() ast.Expr{
         exp.ElseBlock = p.parseBlockStmt()
     }
     
-    log.Info("IF Expr => " , exp.Cond , exp.TrueBlock.ToString() , exp.ElseBlock.ToString())
+    //log.Info("IF Expr => " , exp.Cond , exp.TrueBlock.ToString() , exp.ElseBlock)
 
     return exp
 }

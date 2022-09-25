@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"vabna/evaluator"
 	"vabna/lexer"
-    "vabna/parser"
+	"vabna/parser"
 )
 
 const PROMPT = "-> "
@@ -32,9 +33,11 @@ func Repl(in io.Reader, out io.Writer) {
             showParseErrors(out , p.GetErrors())
             continue
         }
-
-        io.WriteString(out , prog.ToString())
-        io.WriteString(out , "\n")
+        evals := evaluator.Eval(prog)
+        if evals != nil{
+            io.WriteString(out , evals.Inspect())
+            io.WriteString(out , "\n")
+        }
 	}
 }
 
