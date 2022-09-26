@@ -74,21 +74,74 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 		}
 
 		return applyFunc(fnc, args)
+
+	case *ast.StringLit:
+		return &object.String{Value: node.Value}
+	case *ast.ArrLit:
+		elms := evalExprs(node.Elms, env)
+		if len(elms) == 1 && isErr(elms[0]) {
+			return elms[0]
+		}
+
+		return &object.Array{Elms: elms}
+
+	case *ast.IndexExpr:
+		left := Eval(node.Left, env)
+		if isErr(left) {
+			return nil
+		}
+
+		index := Eval(node.Index, env)
+		if isErr(index) {
+			return index
+		}
+
+		return evalIndexExpr(left, index)
 	}
 
 	return nil
 }
 
-func applyFunc(fn object.Obj, args []object.Obj) object.Obj {
-	f, ok := fn.(*object.Function)
 
-	if !ok {
-		return newErr("not a function %s", fn)
+
+func evalIndexExpr(left, index object.Obj) object.Obj {
+
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INT_OBJ:
+		return evalArrIndexExpr(left, index)
+
+	default:
+		return newErr("Unsupported Index Operator %s ", left.Type())
 	}
 
-	eEnv := extendFuncEnv(f, args)
-	evd := Eval(f.Body, eEnv)
-	return unwrapRValue(evd)
+}
+
+func evalArrIndexExpr(arr, index object.Obj) object.Obj {
+	arrObj := arr.(*object.Array)
+	idx := index.(*object.Integer).Value
+
+	max := int64(len(arrObj.Elms) - 1)
+
+	if idx < 0 || idx > max {
+		return NULL
+	}
+
+	return arrObj.Elms[idx]
+}
+
+func applyFunc(fn object.Obj, args []object.Obj) object.Obj {
+
+	switch fn := fn.(type) {
+	case *object.Function:
+		eEnv := extendFuncEnv(fn, args)
+		evd := Eval(fn.Body, eEnv)
+		return unwrapRValue(evd)
+	case *object.Builtin:
+		return fn.Fn(args...)
+	default:
+		return newErr("%s is not a function", fn.Type())
+
+	}
 }
 
 func extendFuncEnv(fn *object.Function, args []object.Obj) *object.Env {
@@ -127,13 +180,16 @@ func evalExprs(es []ast.Expr, env *object.Env) []object.Obj {
 }
 
 func evalId(node *ast.Identifier, env *object.Env) object.Obj {
-	val, ok := env.Get(node.Value)
-
-	if !ok {
-		return newErr("id not found : " + node.Value)
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
 
-	return val
+	if builtin, ok := builtins[node.Value]; ok {
+		return builtin
+	}
+
+	return newErr("id not found : " + node.Value)
+	//	return val
 }
 
 func newErr(format string, a ...interface{}) *object.Error {
@@ -155,17 +211,17 @@ func evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.Obj {
 	for _, stmt := range block.Stmts {
 		res = Eval(stmt, env)
 
-        //fmt.Println("E_BS=> " , res)
+		//fmt.Println("E_BS=> " , res)
 
 		if res != nil {
 			rtype := res.Type()
 			if rtype == object.RETURN_VAL_OBJ || rtype == object.ERR_OBJ {
-                //fmt.Println("RET => " ,  res)
+				//fmt.Println("RET => " ,  res)
 				return res
 			}
 		}
 	}
-    //fmt.Println("EBS 2=>" ,res)
+	//fmt.Println("EBS 2=>" ,res)
 	return res
 }
 
@@ -221,6 +277,8 @@ func evalInfixExpr(op string, l, r object.Obj) object.Obj {
 	switch {
 	case l.Type() == object.INT_OBJ && r.Type() == object.INT_OBJ:
 		return evalIntInfixExpr(op, l, r)
+	case l.Type() == object.STRING_OBJ && r.Type() == object.STRING_OBJ:
+		return evalStringInfixExpr(op, l, r)
 	case op == "==":
 		return getBoolObj(l == r)
 	case op == "!=":
@@ -230,6 +288,16 @@ func evalInfixExpr(op string, l, r object.Obj) object.Obj {
 	default:
 		return newErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
 	}
+}
+
+func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
+	if op != "+" {
+		return newErr("Unknown Operator %s %s %s", l.Type(), op, r.Type())
+	}
+
+	lval := l.(*object.String).Value
+	rval := r.(*object.String).Value
+	return &object.String{Value: lval + rval}
 }
 
 func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {

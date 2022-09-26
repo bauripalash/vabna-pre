@@ -14,8 +14,16 @@ const (
 	EOF     = "EOF"
 	PLUS    = "+"
 
+    STRING = "STRING"
 	// Identifier token
 	IDENT = "IDENT"
+    
+    //Left Square Bracket `[`
+    LS_BRACKET = "["
+    //Rigt Square Bracket `]`
+    RS_BRACKET = "]"
+    
+    COLON = ":"
 
 	// integer
 	INT = "INT"
