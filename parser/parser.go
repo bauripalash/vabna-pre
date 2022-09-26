@@ -112,12 +112,14 @@ func (p *Parser) parseHashLit() ast.Expr{
 
         hash.Pairs[k] = val
 
-       
-    }
-
-     if !p.isPeekToken(token.RBRACE) && !p.peek(token.COMMA){
+       if !p.isPeekToken(token.RBRACE) && !p.peek(token.COMMA){
                 return nil
             }
+    }
+
+    if !p.peek(token.RBRACE){
+        return nil
+    } 
      return hash
 
 }

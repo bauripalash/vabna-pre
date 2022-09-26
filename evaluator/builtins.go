@@ -1,6 +1,9 @@
 package evaluator
 
-import "vabna/object"
+import (
+	"fmt"
+	"vabna/object"
+)
 
 var builtins = map[string]*object.Builtin{
 
@@ -100,4 +103,14 @@ var builtins = map[string]*object.Builtin{
 
         },
     },
+
+    "show" : {
+        Fn: func(args ...object.Obj) object.Obj {
+          for _,arg := range args{
+            fmt.Println(arg.Inspect())
+          }
+          return NULL
+        },
+    },
+
 }

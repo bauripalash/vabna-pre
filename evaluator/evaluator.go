@@ -97,23 +97,74 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 		}
 
 		return evalIndexExpr(left, index)
+    case *ast.HashLit:
+        return evalHashLit(node,env)
 	}
 
 	return nil
 }
 
 
+func evalHashLit(node *ast.HashLit , env *object.Env) object.Obj{
+    pairs := make(map[object.HashKey]object.HashPair)
+
+    for kNode, vNode := range node.Pairs{
+
+        key := Eval(kNode , env)
+
+        if isErr(key){
+            return key
+        }
+        hashkey , ok := key.(object.Hashable)
+
+        if !ok{
+            return newErr("object cannot be used as hash key %s" , key.Type())
+        }
+
+        val := Eval(vNode , env)
+
+        if isErr(val){
+            return val
+        }
+
+        hashed := hashkey.HashKey()
+
+        pairs[hashed] = object.HashPair{Key: key , Value: val}
+    }
+
+    return &object.Hash{Pairs: pairs}
+}
 
 func evalIndexExpr(left, index object.Obj) object.Obj {
 
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INT_OBJ:
 		return evalArrIndexExpr(left, index)
-
+    case left.Type() == object.HASH_OBJ:
+        return evalHashIndexExpr(left , index)
 	default:
 		return newErr("Unsupported Index Operator %s ", left.Type())
 	}
 
+}
+
+func evalHashIndexExpr(hash, index object.Obj) object.Obj{
+
+    hashO := hash.(*object.Hash)
+
+    key , ok := index.(object.Hashable)
+
+    if !ok{
+        return newErr("This cannot be used as hash key %s", index.Type())
+    }
+
+    pair , ok := hashO.Pairs[key.HashKey()]
+
+    if !ok{
+        return NULL
+    }
+
+    return pair.Value
 }
 
 func evalArrIndexExpr(arr, index object.Obj) object.Obj {
