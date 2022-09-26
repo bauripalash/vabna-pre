@@ -24,7 +24,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 
-	"first": {
+	"প্রথম": {
 		Fn: func(args ...object.Obj) object.Obj {
 			if len(args) != 1 {
 				return newErr("wrong number of argument %d", len(args))
@@ -42,7 +42,7 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 
-	"last": {
+	"শেষ": {
 		Fn: func(args ...object.Obj) object.Obj {
 			if len(args) != 1 {
 				return newErr("wrong number of argument %d", len(args))
@@ -61,56 +61,55 @@ var builtins = map[string]*object.Builtin{
 		},
 	},
 
-    "rest" : {
-        Fn: func(args ...object.Obj) object.Obj {
-       if len(args) !=1 {
-            return newErr("wrong number of argument %d" , len(args))
-       }
+	"বাদবাকি": {
+		Fn: func(args ...object.Obj) object.Obj {
+			if len(args) != 1 {
+				return newErr("wrong number of argument %d", len(args))
+			}
 
-       if args[0].Type() != object.ARRAY_OBJ{
-            return newErr("rest cannot be used with %s" , args[0].Type())
-       }
+			if args[0].Type() != object.ARRAY_OBJ {
+				return newErr("rest cannot be used with %s", args[0].Type())
+			}
 
-           array := args[0].(*object.Array)
-           arrLen := len(array.Elms)
-            if arrLen > 0{
-                newElms := make([]object.Obj , arrLen - 1 , arrLen - 1)
-                copy(newElms , array.Elms[1:arrLen])
-                return &object.Array{Elms: newElms}
-            }
-        return NULL
-        },
-    },
+			array := args[0].(*object.Array)
+			arrLen := len(array.Elms)
+			if arrLen > 0 {
+				newElms := make([]object.Obj, arrLen-1, arrLen-1)
+				copy(newElms, array.Elms[1:arrLen])
+				return &object.Array{Elms: newElms}
+			}
+			return NULL
+		},
+	},
 
-    "push" : {
-        Fn: func(args ...object.Obj) object.Obj {
- 
-   if len(args) !=2 {
-            return newErr("wrong number of argument %d" , len(args))
-       }
+	"যোগ": {
+		Fn: func(args ...object.Obj) object.Obj {
 
-       if args[0].Type() != object.ARRAY_OBJ{
-            return newErr("push cannot be used with %s" , args[0].Type())
-       }
+			if len(args) != 2 {
+				return newErr("wrong number of argument %d", len(args))
+			}
 
-       arr := args[0].(*object.Array)
-       arrLen := len(arr.Elms)
+			if args[0].Type() != object.ARRAY_OBJ {
+				return newErr("push cannot be used with %s", args[0].Type())
+			}
 
-       newElms := make([]object.Obj , arrLen + 1 , arrLen + 1)
-       copy(newElms , arr.Elms)
-       newElms[arrLen] = args[1]
-       return &object.Array{Elms: newElms}
+			arr := args[0].(*object.Array)
+			arrLen := len(arr.Elms)
 
-        },
-    },
+			newElms := make([]object.Obj, arrLen+1, arrLen+1)
+			copy(newElms, arr.Elms)
+			newElms[arrLen] = args[1]
+			return &object.Array{Elms: newElms}
 
-    "show" : {
-        Fn: func(args ...object.Obj) object.Obj {
-          for _,arg := range args{
-            fmt.Println(arg.Inspect())
-          }
-          return NULL
-        },
-    },
+		},
+	},
 
+	"দেখাও": {
+		Fn: func(args ...object.Obj) object.Obj {
+			for _, arg := range args {
+				fmt.Println(arg.Inspect())
+			}
+			return NULL
+		},
+	},
 }

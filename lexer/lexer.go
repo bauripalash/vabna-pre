@@ -5,24 +5,28 @@ import (
 )
 
 type Lexer struct {
-	input   string
+	input   []rune
 	pos     int
 	readPos int
-	ch      byte
+	ch      rune
 }
 
 func (l *Lexer) AtEOF() bool {
 
-	if l.pos >= len(l.input) {
-		return true
-	}
-
-	return false
+	return l.pos >= len(l.input)
 
 }
 
+/*
+func getLen(inp string) int {
+
+	return utf8.RuneCountInString(inp)
+
+}
+*/
+
 func NewLexer(input string) Lexer {
-	lexer := Lexer{input: input}
+	lexer := Lexer{input: []rune(input)}
 	lexer.readChar()
 	return lexer
 }
@@ -35,7 +39,9 @@ func (l *Lexer) readChar() {
 	} else {
 		l.ch = l.input[l.readPos]
 	}
+	//fmt.Printf("<-> %c >> %d >>  %d >> %d\n", l.ch, len(string(l.ch)), l.pos, l.readPos)
 	l.pos = l.readPos
+
 	l.readPos += 1
 }
 
@@ -130,8 +136,8 @@ func (l *Lexer) readString() string {
 			break
 		}
 	}
-
-	return l.input[pos:l.pos]
+	//fmt.Println(l.input[pos:l.pos])
+	return string(l.input[pos:l.pos])
 }
 
 func (l *Lexer) eatWhitespace() {
@@ -140,7 +146,7 @@ func (l *Lexer) eatWhitespace() {
 	}
 }
 
-func NewToken(tokType token.TokenType, ch byte) token.Token {
+func NewToken(tokType token.TokenType, ch rune) token.Token {
 
 	return token.Token{
 		Type:    tokType,
@@ -156,7 +162,7 @@ func (l *Lexer) readIdent() string {
 	for isLetter(l.ch) {
 		l.readChar()
 	}
-	return l.input[pos:l.pos]
+	return string(l.input[pos:l.pos])
 
 }
 
@@ -167,22 +173,22 @@ func (l *Lexer) readNum() string {
 		l.readChar()
 	}
 
-	return l.input[pos:l.pos]
+	return string(l.input[pos:l.pos])
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) peekChar() rune {
 
 	if l.readPos >= len(l.input) {
 		return 0
 	} else {
-		return l.input[l.readPos]
+		return []rune(l.input)[l.readPos]
 	}
 }
 
-func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+func isLetter(ch rune) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || 'ঀ' <= ch && ch <= '৾'
 }
 
-func isDigit(ch byte) bool {
+func isDigit(ch rune) bool {
 	return '0' <= ch && ch <= '9'
 }

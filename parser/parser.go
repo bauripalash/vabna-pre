@@ -19,21 +19,21 @@ const (
 	PROD
 	PREFIX
 	CALL
-    INDEX 
+	INDEX
 )
 
 var precedences = map[token.TokenType]int{
 
-	token.EQEQ:   EQUALS,
-	token.NOT_EQ: EQUALS,
-	token.LT:     LTGT,
-	token.GT:     LTGT,
-	token.PLUS:   SUM,
-	token.MINUS:  SUM,
-	token.DIV:    PROD,
-	token.MUL:    PROD,
-	token.LPAREN: CALL,
-    token.LS_BRACKET: INDEX,
+	token.EQEQ:       EQUALS,
+	token.NOT_EQ:     EQUALS,
+	token.LT:         LTGT,
+	token.GT:         LTGT,
+	token.PLUS:       SUM,
+	token.MINUS:      SUM,
+	token.DIV:        PROD,
+	token.MUL:        PROD,
+	token.LPAREN:     CALL,
+	token.LS_BRACKET: INDEX,
 }
 
 type Parser struct {
@@ -69,10 +69,10 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regPrefix(token.LPAREN, p.parseGroupedExpr)
 	p.regPrefix(token.IF, p.parseIfExpr)
 	p.regPrefix(token.FUNC, p.parseFunc)
-    p.regPrefix(token.STRING , p.parseStringLit)
-    p.regPrefix(token.LS_BRACKET , p.parseArrLit)
-    p.regPrefix(token.LBRACE , p.parseHashLit)
-    
+	p.regPrefix(token.STRING, p.parseStringLit)
+	p.regPrefix(token.LS_BRACKET, p.parseArrLit)
+	p.regPrefix(token.LBRACE, p.parseHashLit)
+
 	//register infix functions
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.regInfix(token.PLUS, p.parseInfixExpr)
@@ -84,7 +84,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regInfix(token.LT, p.parseInfixExpr)
 	p.regInfix(token.GT, p.parseInfixExpr)
 	p.regInfix(token.LPAREN, p.parseCallExpr)
-    p.regInfix(token.LS_BRACKET , p.parseIndexExpr)
+	p.regInfix(token.LS_BRACKET, p.parseIndexExpr)
 
 	p.nextToken()
 	p.nextToken()
@@ -93,89 +93,87 @@ func NewParser(l *lexer.Lexer) *Parser {
 
 }
 
-func (p *Parser) parseHashLit() ast.Expr{
+func (p *Parser) parseHashLit() ast.Expr {
 
-    hash := &ast.HashLit{ Token: p.curTok }
-    hash.Pairs = make(map[ast.Expr]ast.Expr)
+	hash := &ast.HashLit{Token: p.curTok}
+	hash.Pairs = make(map[ast.Expr]ast.Expr)
 
-    for !p.isPeekToken(token.RBRACE){
-        p.nextToken()
-        k := p.parseExpr(LOWEST)
+	for !p.isPeekToken(token.RBRACE) {
+		p.nextToken()
+		k := p.parseExpr(LOWEST)
 
-        if !p.peek(token.COLON){
-            return nil
-        }
+		if !p.peek(token.COLON) {
+			return nil
+		}
 
-        p.nextToken()
+		p.nextToken()
 
-        val := p.parseExpr(LOWEST)
+		val := p.parseExpr(LOWEST)
 
-        hash.Pairs[k] = val
+		hash.Pairs[k] = val
 
-       if !p.isPeekToken(token.RBRACE) && !p.peek(token.COMMA){
-                return nil
-            }
-    }
+		if !p.isPeekToken(token.RBRACE) && !p.peek(token.COMMA) {
+			return nil
+		}
+	}
 
-    if !p.peek(token.RBRACE){
-        return nil
-    } 
-     return hash
+	if !p.peek(token.RBRACE) {
+		return nil
+	}
+	return hash
 
 }
 
+func (p *Parser) parseIndexExpr(l ast.Expr) ast.Expr {
+	e := &ast.IndexExpr{Token: p.curTok, Left: l}
 
+	p.nextToken()
 
+	e.Index = p.parseExpr(LOWEST)
 
-func (p *Parser) parseIndexExpr(l ast.Expr) ast.Expr{
-    e := &ast.IndexExpr{ Token: p.curTok , Left: l }
+	if !p.peek(token.RS_BRACKET) {
+		return nil
+	}
 
-    p.nextToken()
-
-    e.Index = p.parseExpr(LOWEST)
-
-    if !p.peek(token.RS_BRACKET){
-        return nil
-    }
-
-    return e
+	return e
 }
 
-func (p *Parser) parseArrLit() ast.Expr{
-    arr := &ast.ArrLit{ Token: p.curTok }
+func (p *Parser) parseArrLit() ast.Expr {
+	arr := &ast.ArrLit{Token: p.curTok}
 
-    arr.Elms = p.parseExprList(token.RS_BRACKET)
+	arr.Elms = p.parseExprList(token.RS_BRACKET)
 
-    return arr
+	return arr
 }
 
-func (p *Parser) parseExprList(endtok token.TokenType) []ast.Expr{
-    list := []ast.Expr{}
+func (p *Parser) parseExprList(endtok token.TokenType) []ast.Expr {
+	list := []ast.Expr{}
 
-    if p.isPeekToken(endtok){
-        p.nextToken()
-        return list
-    }
+	if p.isPeekToken(endtok) {
+		p.nextToken()
+		return list
+	}
 
-    p.nextToken()
+	p.nextToken()
 
-    list = append(list, p.parseExpr(LOWEST))
+	list = append(list, p.parseExpr(LOWEST))
 
-    for p.isPeekToken(token.COMMA){
-        p.nextToken()
-        p.nextToken()
-        list = append(list, p.parseExpr(LOWEST))
-    }
+	for p.isPeekToken(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpr(LOWEST))
+	}
 
-    if !p.peek(endtok){
-        return nil
-    }
+	if !p.peek(endtok) {
+		return nil
+	}
 
-    return list
+	return list
 }
 
-func (p* Parser) parseStringLit() ast.Expr{
-    return &ast.StringLit{ Token: p.curTok , Value: p.curTok.Literal }
+func (p *Parser) parseStringLit() ast.Expr {
+	//fmt.Println(p.curTok)
+	return &ast.StringLit{Token: p.curTok, Value: p.curTok.Literal}
 }
 
 func (p *Parser) parseFunc() ast.Expr {
@@ -193,7 +191,7 @@ func (p *Parser) parseFunc() ast.Expr {
 
 	fl.Body = p.parseBlockStmt()
 
-    log.Info("FN EXPR => ", fl.Body.String())
+	log.Info("FN EXPR => ", fl.Body.String())
 
 	return fl
 }
@@ -351,7 +349,7 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 }
 
 func (p *Parser) parseExprStmt() *ast.ExprStmt {
-    //fmt.Println(p.curTok)
+	//fmt.Println(p.curTok)
 	stmt := &ast.ExprStmt{Token: p.curTok}
 
 	stmt.Expr = p.parseExpr(LOWEST)
@@ -359,7 +357,7 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 	if p.isPeekToken(token.SEMICOLON) {
 		p.nextToken()
 	}
-    //fmt.Println("expr stmt->>>" , stmt)
+	//fmt.Println("expr stmt->>>" , stmt)
 	return stmt
 }
 
@@ -400,8 +398,8 @@ func (p *Parser) parseExpr(prec int) ast.Expr {
 
 		leftExpr = infix(leftExpr)
 	}
-    
-    //fmt.Println(leftExpr)
+
+	//fmt.Println(leftExpr)
 	return leftExpr
 
 }
@@ -522,7 +520,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 		}
 		p.nextToken()
 	}
-    //fmt.Println("BS=> " , bs)
+	//fmt.Println("BS=> " , bs)
 
 	return bs
 }

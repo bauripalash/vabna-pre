@@ -62,13 +62,13 @@ const (
 
 var Keywords = map[string]TokenType{
 
-	"fn":     FUNC,
-	"let":    LET,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"else":   ELSE,
-	"return": RETURN,
+	"কাজ":    FUNC,
+	"ধরি":    LET,
+	"সত্য":   TRUE,
+	"মিথ্যা": FALSE,
+	"যদি":    IF,
+	"নতুবা":  ELSE,
+	"ফেরাও":  RETURN,
 }
 
 func LookupIdent(ident string) TokenType {

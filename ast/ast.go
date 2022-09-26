@@ -50,79 +50,77 @@ func (p *Program) String() string {
 }
 
 type StringLit struct {
-    Token token.Token
-    Value string 
+	Token token.Token
+	Value string
 }
 
-func (s *StringLit) exprNode() {}
+func (s *StringLit) exprNode()        {}
 func (s *StringLit) TokenLit() string { return s.Token.Literal }
-func (s *StringLit) String() string { return s.Token.Literal }
-
+func (s *StringLit) String() string   { return s.Token.Literal }
 
 //Arrays
-type ArrLit struct{
-    Token token.Token
-    Elms []Expr
+type ArrLit struct {
+	Token token.Token
+	Elms  []Expr
 }
 
-func (ar *ArrLit) exprNode(){}
+func (ar *ArrLit) exprNode()        {}
 func (ar *ArrLit) TokenLit() string { return ar.Token.Literal }
-func (ar *ArrLit) String() string{
-    var out bytes.Buffer
+func (ar *ArrLit) String() string {
+	var out bytes.Buffer
 
-    es := []string{}
+	es := []string{}
 
-    for _,e := range ar.Elms{
-        es = append(es, e.String())
-    }
+	for _, e := range ar.Elms {
+		es = append(es, e.String())
+	}
 
-    out.WriteString("[")
-    out.WriteString(strings.Join(es, ", "))
-    out.WriteString("]")
+	out.WriteString("[")
+	out.WriteString(strings.Join(es, ", "))
+	out.WriteString("]")
 
-    return out.String()
+	return out.String()
 }
-
 
 // Index Expression -> ARRAY[123]
 
-type IndexExpr struct{
-    Token token.Token
-    Left Expr
-    Index Expr
+type IndexExpr struct {
+	Token token.Token
+	Left  Expr
+	Index Expr
 }
 
-func (ie *IndexExpr) exprNode() {}
+func (ie *IndexExpr) exprNode()        {}
 func (ie *IndexExpr) TokenLit() string { return ie.Token.Literal }
 func (ie *IndexExpr) String() string {
-    var out bytes.Buffer
-    out.WriteString("(")
-    out.WriteString(ie.Left.String())
-    out.WriteString("[")
-    out.WriteString(ie.Index.String())
-    out.WriteString("])")
-    return out.String()
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
+	return out.String()
 }
 
 //Hash
 
-type HashLit struct{
-    Token token.Token
-    Pairs map[Expr]Expr
+type HashLit struct {
+	Token token.Token
+	Pairs map[Expr]Expr
 }
 
-func (hl *HashLit) exprNode() {}
+func (hl *HashLit) exprNode()        {}
 func (hl *HashLit) TokenLit() string { return hl.Token.Literal }
 func (hl *HashLit) String() string {
-var out bytes.Buffer
-pairs := []string{}
-for key, value := range hl.Pairs {
-pairs = append(pairs, key.String()+":"+value.String())
-}
-out.WriteString("{")
-out.WriteString(strings.Join(pairs, ", "))
-out.WriteString("}")
-return out.String()
+	var out bytes.Buffer
+	pairs := []string{}
+	for key, value := range hl.Pairs {
+		pairs = append(pairs, key.String()+":"+value.String())
+	}
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+	return out.String()
 }
 
 // let statement
@@ -197,6 +195,7 @@ func (e *ExprStmt) String() string {
 		return ""
 	}
 }
+
 /*
 func (e *ExprStmt) String() string {
 	//fmt.Println(e.Expr.TokenLit())
@@ -208,7 +207,6 @@ func (e *ExprStmt) String() string {
 	}
 }
 */
-
 
 // Identifier Expression
 
@@ -295,7 +293,7 @@ type Boolean struct {
 
 func (b *Boolean) exprNode()        {}
 func (b *Boolean) TokenLit() string { return b.Token.Literal }
-func (b *Boolean) String() string { return b.Token.Literal }
+func (b *Boolean) String() string   { return b.Token.Literal }
 
 type BlockStmt struct {
 	Token token.Token

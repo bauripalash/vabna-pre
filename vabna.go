@@ -4,55 +4,61 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-    /*
-	"vabna/evaluator"
-	"vabna/lexer"
-	"vabna/object"
-	"vabna/parser"
-    */
+
+	/*
+		"vabna/evaluator"
+		"vabna/lexer"
+		"vabna/object"
+		"vabna/parser"
+	*/
 	"vabna/repl"
-    
 
 	log "github.com/sirupsen/logrus"
 )
 
 func init() {
 	log.SetLevel(log.WarnLevel)
-    log.SetFormatter(&log.TextFormatter{
-        PadLevelText: true,
-        FullTimestamp: true,
+	log.SetFormatter(&log.TextFormatter{
+		PadLevelText:  true,
+		FullTimestamp: true,
+	})
 
-    })
-    
 	log.SetOutput(os.Stdout)
 }
 
 func main() {
-/*
-	examplecode := `
-        let newAdder = fn(x) { fn(y) {x+y} };
-        let addTwo = newAdder(2);
-        addTwo
+	/*
+	   	examplecode := `
+	           let newAdder = fn(x) { fn(y) {x+y} };
+	           let addTwo = newAdder(2);
+	           addTwo
 
-    `
+	       `
 
-	l := lexer.NewLexer(examplecode)
-	p := parser.NewParser(&l)
-	env := object.NewEnv()
-	e := evaluator.Eval(p.ParseProg(), env)
-	fmt.Println(e)
-	//fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
+	   	l := lexer.NewLexer(examplecode)
+	   	p := parser.NewParser(&l)
+	   	env := object.NewEnv()
+	   	e := evaluator.Eval(p.ParseProg(), env)
+	   	fmt.Println(e)
+	   	//fmt.Printf("AST:\n%v\n", p.ParseProg().ToString())
 
-	if len(p.GetErrors()) > 0 {
-		var errs string
+	   	if len(p.GetErrors()) > 0 {
+	   		var errs string
 
-		for _, err := range p.GetErrors() {
-			errs += fmt.Sprintf("%s\n", err)
-		}
+	   		for _, err := range p.GetErrors() {
+	   			errs += fmt.Sprintf("%s\n", err)
+	   		}
 
-		log.Warnln(errs)
-	}
-*/
+	   		log.Warnln(errs)
+	   	}
+	*/
+
+	var name string = "পলাশ"
+	fmt.Println(len(name))
+	fmt.Println(string([]rune(name)[3]))
+
+	//fmt.Println(name[12])
+
 	startRepl := true
 
 	if startRepl {
