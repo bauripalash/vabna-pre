@@ -358,6 +358,7 @@ func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 }
 
 func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
+
 	lval := l.(*object.Integer).Value
 	rval := r.(*object.Integer).Value
 	//fmt.Println(op)

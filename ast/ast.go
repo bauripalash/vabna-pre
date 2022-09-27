@@ -241,6 +241,19 @@ func (in *IntegerLit) String() string {
 	return in.Token.Literal
 }
 
+type FloatLit struct {
+	Token token.Token
+	Value float64
+}
+
+func (fl *FloatLit) exprNode() {}
+func (fl *FloatLit) TokenLit() string {
+	return fl.Token.Literal
+}
+func (fl *FloatLit) String() string {
+	return fl.Token.Literal
+}
+
 // Prefix Expression
 
 type PrefixExpr struct {

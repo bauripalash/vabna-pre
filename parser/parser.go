@@ -65,6 +65,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.regPrefix(token.IDENT, p.parseIdent)
 	p.regPrefix(token.INT, p.parseIntegerLit)
+	p.regPrefix(token.FLOAT, p.parseFloatLit)
 	p.regPrefix(token.MINUS, p.parsePrefixExpr)
 	p.regPrefix(token.EXC, p.parsePrefixExpr)
 	p.regPrefix(token.TRUE, p.parseBool)
@@ -457,6 +458,22 @@ func (p *Parser) parseIntegerLit() ast.Expr {
 	lit.Value = value
 	//p.nextToken()
 	log.Info("INT EXPR =>", value)
+
+	return lit
+}
+
+func (p *Parser) parseFloatLit() ast.Expr {
+	lit := &ast.FloatLit{Token: p.curTok}
+	value, err := strconv.ParseFloat(p.curTok.Literal, 64)
+
+	if err != nil {
+		e := &errs.IntegerParseError{Token: p.curTok}
+		p.errs = append(p.errs, e)
+		return nil
+	}
+
+	lit.Value = value
+	//fmt.Println(p.curTok.Literal)
 
 	return lit
 }

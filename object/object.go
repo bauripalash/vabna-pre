@@ -10,15 +10,16 @@ import (
 
 const (
 	INT_OBJ        = "INTEGER"
+	FLOAT_OBJ      = "FLOAT"
 	BOOL_OBJ       = "BOOLEAN"
 	RETURN_VAL_OBJ = "RETURN_VAL"
 	NULL_OBJ       = "NIL"
 	ERR_OBJ        = "ERROR"
 	FUNC_OBJ       = "FUNCTION"
-    STRING_OBJ     = "STRING"
-    BUILTIN_OBJ = "BUILTIN"
-    ARRAY_OBJ = "ARRAY"
-    HASH_OBJ = "HASH"
+	STRING_OBJ     = "STRING"
+	BUILTIN_OBJ    = "BUILTIN"
+	ARRAY_OBJ      = "ARRAY"
+	HASH_OBJ       = "HASH"
 )
 
 type BuiltInFunc func(args ...Obj) Obj
@@ -30,106 +31,105 @@ type Obj interface {
 	Inspect() string
 }
 
-type Builtin struct{
-    Fn BuiltInFunc
+type Builtin struct {
+	Fn BuiltInFunc
 }
 
-func (b *Builtin) Type() ObjType { return BUILTIN_OBJ }
+func (b *Builtin) Type() ObjType   { return BUILTIN_OBJ }
 func (b *Builtin) Inspect() string { return "builtin function" }
 
 //Arrays
 
-type Array struct{
-    Elms []Obj
+type Array struct {
+	Elms []Obj
 }
 
-func (a  *Array) Type() ObjType { return ARRAY_OBJ }
-func (a  *Array) Inspect() string {
-    var out bytes.Buffer
-    es := []string{}
-    for _, e := range a.Elms {
-        es = append(es, e.Inspect())
-    }
-    out.WriteString("[")
+func (a *Array) Type() ObjType { return ARRAY_OBJ }
+func (a *Array) Inspect() string {
+	var out bytes.Buffer
+	es := []string{}
+	for _, e := range a.Elms {
+		es = append(es, e.Inspect())
+	}
+	out.WriteString("[")
 
-    out.WriteString(strings.Join(es, ", "))
-    out.WriteString("]")
-    return out.String()
+	out.WriteString(strings.Join(es, ", "))
+	out.WriteString("]")
+	return out.String()
 }
-
 
 //Hash
 
 type HashKey struct {
-    Type ObjType
-    Value uint64
+	Type  ObjType
+	Value uint64
 }
 
-func (b *Boolean) HashKey() HashKey{
-    var val uint64
+func (b *Boolean) HashKey() HashKey {
+	var val uint64
 
-    if b.Value{
-        val = 1
-    }else{
-        val = 2
-    }
+	if b.Value {
+		val = 1
+	} else {
+		val = 2
+	}
 
-    return HashKey{ Type: b.Type() , Value:  val }
+	return HashKey{Type: b.Type(), Value: val}
 }
 
-func (i *Integer) HashKey() HashKey{
-    return HashKey{ Type:  i.Type() , Value: uint64(i.Value)}
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
 
 }
 
-func (s *String) HashKey() HashKey{
+func (s *String) HashKey() HashKey {
 
-    h := fnv.New64a()
-    h.Write([]byte(s.Value))
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
 
-    return HashKey{Type: s.Type() , Value: h.Sum64()}
+	return HashKey{Type: s.Type(), Value: h.Sum64()}
 }
 
 //Hash Pair { a : b}
 
-type HashPair struct{
-    Key Obj
-    Value Obj
+type HashPair struct {
+	Key   Obj
+	Value Obj
 }
 
-type Hash struct{
-    Pairs map[HashKey]HashPair
+type Hash struct {
+	Pairs map[HashKey]HashPair
 }
 
 func (h *Hash) Type() ObjType { return HASH_OBJ }
 
-func (h *Hash) Inspect() string{
-    var out bytes.Buffer
+func (h *Hash) Inspect() string {
+	var out bytes.Buffer
 
-    pairs := []string{}
+	pairs := []string{}
 
-    for _, p := range h.Pairs{
-        pairs = append(pairs, fmt.Sprintf("%s : %s" , p.Key.Inspect() , p.Value.Inspect()))
+	for _, p := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s : %s", p.Key.Inspect(), p.Value.Inspect()))
 
-    }
+	}
 
-    out.WriteString("{")
-    out.WriteString(strings.Join(pairs , ", "))
-    out.WriteString("}")
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
-    return out.String()
+	return out.String()
 }
 
-type Hashable interface{
-    HashKey() HashKey
+type Hashable interface {
+	HashKey() HashKey
 }
 
 //Strings "I am a string"
-type String struct{
-    Value string 
+type String struct {
+	Value string
 }
 
-func (s *String) Type() ObjType { return STRING_OBJ }
+func (s *String) Type() ObjType   { return STRING_OBJ }
 func (s *String) Inspect() string { return s.Value }
 
 //Integer 1,2,3,4,5.....100
@@ -143,6 +143,20 @@ func (i *Integer) Type() ObjType {
 
 func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
+}
+
+// Floats 1.1 , 3.14
+
+type Float struct {
+	Value float64
+}
+
+func (f *Float) Type() ObjType {
+	return FLOAT_OBJ
+}
+
+func (f *Float) Inspect() string {
+	return fmt.Sprintf("%f", f.Value)
 }
 
 //Booleans true,false

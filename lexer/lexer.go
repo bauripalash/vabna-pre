@@ -131,8 +131,13 @@ func (l *Lexer) NextToken() token.Token {
 			tk.Type = token.LookupIdent(tk.Literal)
 			return tk
 		} else if isDigit(l.ch) {
-			tk.Type = token.INT
-			tk.Literal = l.readNum()
+			lit, isF := l.readNum()
+			if isF {
+				tk.Type = token.FLOAT
+			} else {
+				tk.Type = token.INT
+			}
+			tk.Literal = lit
 			return tk
 		} else {
 			tk = NewToken(token.ILLEGAL, l.ch, l.line, l.column)
@@ -190,14 +195,23 @@ func (l *Lexer) readIdent() string {
 
 }
 
-func (l *Lexer) readNum() string {
+func (l *Lexer) readNum() (string, bool) {
 	pos := l.pos
+	isFloat := false
 
 	for isDigit(l.ch) {
 		l.readChar()
 	}
 
-	return string(l.input[pos:l.pos])
+	if l.ch == '.' {
+		isFloat = true
+		l.readChar()
+		for isDigit(l.ch) {
+			l.readChar()
+		}
+	}
+
+	return string(l.input[pos:l.pos]), isFloat
 }
 
 func (l *Lexer) peekChar() rune {

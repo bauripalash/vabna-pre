@@ -101,7 +101,7 @@ func main() {
 
 	}
 
-	startRepl := false
+	startRepl := true
 
 	////
 	//var name = "Palash Bauri"

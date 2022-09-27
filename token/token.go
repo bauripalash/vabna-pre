@@ -30,6 +30,8 @@ const (
 	// integer
 	INT = "INT"
 
+	FLOAT = "FLOAT"
+
 	//Equal = sign; for assignment
 	EQ = "="
 
