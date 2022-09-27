@@ -238,6 +238,7 @@ func (p *Parser) parseCallExpr(function ast.Expr) ast.Expr {
 	return exp
 }
 
+/*
 func (p *Parser) parseCallArgs() []ast.Expr {
 	args := []ast.Expr{}
 
@@ -261,6 +262,7 @@ func (p *Parser) parseCallArgs() []ast.Expr {
 
 	return args
 }
+*/
 
 func (p *Parser) GetErrors() []string {
 	return p.errs

@@ -32,7 +32,7 @@ func Repl(in io.Reader, out io.Writer) {
 		prog := p.ParseProg()
 
 		if len(p.GetErrors()) != 0 {
-			showParseErrors(out, p.GetErrors())
+			ShowParseErrors(out, p.GetErrors())
 			continue
 		}
 		evals := evaluator.Eval(prog, env)
@@ -44,7 +44,7 @@ func Repl(in io.Reader, out io.Writer) {
 	}
 }
 
-func showParseErrors(out io.Writer, errs []string) {
+func ShowParseErrors(out io.Writer, errs []string) {
 	for _, msg := range errs {
 		io.WriteString(out, "\t ERR >"+msg+"\n")
 	}

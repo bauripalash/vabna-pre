@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -11,6 +12,10 @@ import (
 		"vabna/object"
 		"vabna/parser"
 	*/
+	"vabna/evaluator"
+	"vabna/lexer"
+	"vabna/object"
+	"vabna/parser"
 	"vabna/repl"
 
 	log "github.com/sirupsen/logrus"
@@ -53,13 +58,52 @@ func main() {
 	   	}
 	*/
 
-	var name string = "পলাশ"
-	fmt.Println(len(name))
-	fmt.Println(string([]rune(name)[3]))
+	//var name string = "পলাশ"
+	//fmt.Println(len(name))
+	//fmt.Println(string([]rune(name)[3]))
 
 	//fmt.Println(name[12])
 
-	startRepl := true
+    args := os.Args[1:]
+
+    if len(args) >= 1{
+        filename := args[0]
+        _,err := os.Stat(filename)
+
+        if errors.Is(err , os.ErrNotExist){
+            log.Fatalf("File `%s` does not exist!" , filename)
+        }
+
+        f, err := os.ReadFile(filename)
+
+        if err != nil{
+            log.Fatalf("Cannot read `%s`" , filename)
+        }
+
+        //fmt.Println(string(f))
+
+        lx := lexer.NewLexer(string(f))
+        ps := parser.NewParser(&lx)
+        at := ps.ParseProg()
+        
+        if len(ps.GetErrors()) != 0{
+           repl.ShowParseErrors(os.Stdin , ps.GetErrors()) 
+           log.Fatalf("fix above mentioned errors first!")
+        } 
+        env := object.NewEnv()
+        evd := evaluator.Eval(at , env)
+
+        if evd != nil{
+            fmt.Println(evd.Inspect())
+        }
+
+        
+
+        //fmt.Println(args[0])
+
+    }
+
+	startRepl := false
 
 	if startRepl {
 		user, err := user.Current()
