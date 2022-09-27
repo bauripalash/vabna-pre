@@ -67,7 +67,7 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 		if isErr(fnc) {
 			return fnc
 		}
-
+		//fmt.Println(node.Fun)
 		args := evalExprs(node.Args, env)
 		if len(args) == 1 && isErr(args[0]) {
 			return args[0]
@@ -97,42 +97,41 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 		}
 
 		return evalIndexExpr(left, index)
-    case *ast.HashLit:
-        return evalHashLit(node,env)
+	case *ast.HashLit:
+		return evalHashLit(node, env)
 	}
 
 	return nil
 }
 
+func evalHashLit(node *ast.HashLit, env *object.Env) object.Obj {
+	pairs := make(map[object.HashKey]object.HashPair)
 
-func evalHashLit(node *ast.HashLit , env *object.Env) object.Obj{
-    pairs := make(map[object.HashKey]object.HashPair)
+	for kNode, vNode := range node.Pairs {
 
-    for kNode, vNode := range node.Pairs{
+		key := Eval(kNode, env)
 
-        key := Eval(kNode , env)
+		if isErr(key) {
+			return key
+		}
+		hashkey, ok := key.(object.Hashable)
 
-        if isErr(key){
-            return key
-        }
-        hashkey , ok := key.(object.Hashable)
+		if !ok {
+			return newErr("object cannot be used as hash key %s", key.Type())
+		}
 
-        if !ok{
-            return newErr("object cannot be used as hash key %s" , key.Type())
-        }
+		val := Eval(vNode, env)
 
-        val := Eval(vNode , env)
+		if isErr(val) {
+			return val
+		}
 
-        if isErr(val){
-            return val
-        }
+		hashed := hashkey.HashKey()
 
-        hashed := hashkey.HashKey()
+		pairs[hashed] = object.HashPair{Key: key, Value: val}
+	}
 
-        pairs[hashed] = object.HashPair{Key: key , Value: val}
-    }
-
-    return &object.Hash{Pairs: pairs}
+	return &object.Hash{Pairs: pairs}
 }
 
 func evalIndexExpr(left, index object.Obj) object.Obj {
@@ -140,31 +139,31 @@ func evalIndexExpr(left, index object.Obj) object.Obj {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INT_OBJ:
 		return evalArrIndexExpr(left, index)
-    case left.Type() == object.HASH_OBJ:
-        return evalHashIndexExpr(left , index)
+	case left.Type() == object.HASH_OBJ:
+		return evalHashIndexExpr(left, index)
 	default:
 		return newErr("Unsupported Index Operator %s ", left.Type())
 	}
 
 }
 
-func evalHashIndexExpr(hash, index object.Obj) object.Obj{
+func evalHashIndexExpr(hash, index object.Obj) object.Obj {
 
-    hashO := hash.(*object.Hash)
+	hashO := hash.(*object.Hash)
 
-    key , ok := index.(object.Hashable)
+	key, ok := index.(object.Hashable)
 
-    if !ok{
-        return newErr("This cannot be used as hash key %s", index.Type())
-    }
+	if !ok {
+		return newErr("This cannot be used as hash key %s", index.Type())
+	}
 
-    pair , ok := hashO.Pairs[key.HashKey()]
+	pair, ok := hashO.Pairs[key.HashKey()]
 
-    if !ok{
-        return NULL
-    }
+	if !ok {
+		return NULL
+	}
 
-    return pair.Value
+	return pair.Value
 }
 
 func evalArrIndexExpr(arr, index object.Obj) object.Obj {
@@ -184,9 +183,14 @@ func applyFunc(fn object.Obj, args []object.Obj) object.Obj {
 
 	switch fn := fn.(type) {
 	case *object.Function:
-		eEnv := extendFuncEnv(fn, args)
-		evd := Eval(fn.Body, eEnv)
-		return unwrapRValue(evd)
+		if len(fn.Params) == len(args) {
+			eEnv := extendFuncEnv(fn, args)
+			evd := Eval(fn.Body, eEnv)
+			return unwrapRValue(evd)
+		} else {
+
+			return newErr("Function call doesn't have required arguments provided; wanted = %d but got %d", len(fn.Params), len(args))
+		}
 	case *object.Builtin:
 		return fn.Fn(args...)
 	default:
@@ -198,9 +202,11 @@ func applyFunc(fn object.Obj, args []object.Obj) object.Obj {
 func extendFuncEnv(fn *object.Function, args []object.Obj) *object.Env {
 	env := object.NewEnclosedEnv(fn.Env)
 
+	//if len(args) > 0 {
 	for pId, param := range fn.Params {
 		env.Set(param.Value, args[pId])
 	}
+	//}
 
 	return env
 }

@@ -48,6 +48,9 @@ const (
 	RPAREN    = ")"
 	LBRACE    = "{"
 	RBRACE    = "}"
+	HOLO      = "HOLO"
+	EKTI      = "EKTI"
+	TAHOLE    = "TAHOLE"
 
 	//Keywords
 
@@ -63,12 +66,27 @@ const (
 var Keywords = map[string]TokenType{
 
 	"কাজ":    FUNC,
+	"kaj":    FUNC,
+	"fn":     FUNC,
 	"ধরি":    LET,
+	"dhori":  LET,
+	"let":    LET,
 	"সত্য":   TRUE,
+	"sotto":  TRUE,
 	"মিথ্যা": FALSE,
+	"mittha": FALSE,
 	"যদি":    IF,
-	"নতুবা":  ELSE,
+	"jodi":   IF,
+	"নাহলে":  ELSE,
+	"nahole": ELSE,
 	"ফেরাও":  RETURN,
+	"ferau":  RETURN,
+	"হল":     HOLO,
+	"holo":   HOLO,
+	"একটি":   EKTI,
+	"ekti":   EKTI,
+	"তাহলে":  TAHOLE,
+	"tahole": TAHOLE,
 }
 
 func LookupIdent(ident string) TokenType {

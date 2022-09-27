@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"vabna/ast"
+	"vabna/errs"
 	"vabna/lexer"
 	"vabna/token"
 
@@ -68,7 +69,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regPrefix(token.FALSE, p.parseBool)
 	p.regPrefix(token.LPAREN, p.parseGroupedExpr)
 	p.regPrefix(token.IF, p.parseIfExpr)
-	p.regPrefix(token.FUNC, p.parseFunc)
+	p.regPrefix(token.EKTI, p.parseFunc)
 	p.regPrefix(token.STRING, p.parseStringLit)
 	p.regPrefix(token.LS_BRACKET, p.parseArrLit)
 	p.regPrefix(token.LBRACE, p.parseHashLit)
@@ -177,8 +178,15 @@ func (p *Parser) parseStringLit() ast.Expr {
 }
 
 func (p *Parser) parseFunc() ast.Expr {
-	fl := &ast.FunctionLit{Token: p.curTok}
 
+	if !p.peek(token.FUNC) {
+
+		return nil
+
+	}
+
+	fl := &ast.FunctionLit{Token: p.curTok}
+	fmt.Println(fl.Token)
 	if !p.peek(token.LPAREN) {
 		return nil
 	}
@@ -362,7 +370,12 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 }
 
 func (p *Parser) noPrefixFunctionErr(t token.TokenType) {
-	msg := fmt.Sprintf("no prefix function for %s", t)
+	var msg string
+	if t == token.FUNC {
+		msg = fmt.Sprintf(errs.Errs["NO_EKTI_BEFORE_FN"], t)
+	} else {
+		msg = fmt.Sprintf("no prefix function for %s", t)
+	}
 	p.errs = append(p.errs, msg)
 }
 
@@ -478,6 +491,10 @@ func (p *Parser) parseIfExpr() ast.Expr {
 	//fmt.Println(exp.Cond)
 
 	if !p.peek(token.RPAREN) {
+		return nil
+	}
+	// jodi (sotto) tahole { "hello" }
+	if !p.peek(token.TAHOLE) {
 		return nil
 	}
 
