@@ -10,7 +10,7 @@ type Lexer struct {
 	readPos int
 	ch      rune
 	line    int
-    column  int
+	column  int
 }
 
 func (l *Lexer) AtEOF() bool {
@@ -45,7 +45,7 @@ func (l *Lexer) readChar() {
 	l.pos = l.readPos
 
 	l.readPos += 1
-    l.column += 1
+	l.column += 1
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -56,56 +56,71 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.ch {
 
 	case '+':
-		tk = NewToken(token.PLUS, l.ch , l.line, l.column)
+		tk = NewToken(token.PLUS, l.ch, l.line, l.column)
 	case '-':
-		tk = NewToken(token.MINUS, l.ch , l.line , l.column)
+		tk = NewToken(token.MINUS, l.ch, l.line, l.column)
 	case '*':
-		tk = NewToken(token.MUL, l.ch , l.line , l.column)
+		tk = NewToken(token.MUL, l.ch, l.line, l.column)
 	case '/':
-		tk = NewToken(token.DIV, l.ch , l.line , l.column)
+		tk = NewToken(token.DIV, l.ch, l.line, l.column)
 	case '=':
 		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
 			lit := string(ch) + string(l.ch)
-			tk = token.Token{Type: token.EQEQ, Literal: lit , LineNo: l.line , Column: l.column}
+			tk = token.Token{Type: token.EQEQ, Literal: lit, LineNo: l.line, Column: l.column}
 		} else {
-			tk = NewToken(token.EQ, l.ch , l.line , l.column)
+			tk = NewToken(token.EQ, l.ch, l.line, l.column)
 		}
 	case ';':
-		tk = NewToken(token.SEMICOLON, l.ch , l.line , l.column)
+		tk = NewToken(token.SEMICOLON, l.ch, l.line, l.column)
 	case ',':
-		tk = NewToken(token.COMMA, l.ch , l.line , l.column)
+		tk = NewToken(token.COMMA, l.ch, l.line, l.column)
 	case '<':
-		tk = NewToken(token.LT, l.ch , l.line , l.column)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			lit := string(ch) + string(l.ch)
+			tk = token.Token{Type: token.LTE, Literal: lit, LineNo: l.line, Column: l.column}
+		} else {
+			tk = NewToken(token.LT, l.ch, l.line, l.column)
+		}
 	case '>':
-		tk = NewToken(token.GT, l.ch , l.line , l.column)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			lit := string(ch) + string(l.ch)
+			tk = token.Token{Type: token.GTE, Literal: lit, LineNo: l.line, Column: l.column}
+			//fmt.Println(tk)
+		} else {
+			tk = NewToken(token.GT, l.ch, l.line, l.column)
+		}
 	case '(':
-		tk = NewToken(token.LPAREN, l.ch , l.line , l.column)
+		tk = NewToken(token.LPAREN, l.ch, l.line, l.column)
 	case ')':
-		tk = NewToken(token.RPAREN, l.ch , l.line , l.column)
+		tk = NewToken(token.RPAREN, l.ch, l.line, l.column)
 	case '{':
-		tk = NewToken(token.LBRACE, l.ch , l.line , l.column)
+		tk = NewToken(token.LBRACE, l.ch, l.line, l.column)
 	case '}':
-		tk = NewToken(token.RBRACE, l.ch , l.line , l.column)
+		tk = NewToken(token.RBRACE, l.ch, l.line, l.column)
 	case '!':
 		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
 			lit := string(ch) + string(l.ch)
-			tk = token.Token{Type: token.NOT_EQ, Literal: lit , LineNo: l.line , Column: l.column}
+			tk = token.Token{Type: token.NOT_EQ, Literal: lit, LineNo: l.line, Column: l.column}
 		} else {
-			tk = NewToken(token.EXC, l.ch , l.line , l.column)
+			tk = NewToken(token.EXC, l.ch, l.line, l.column)
 		}
 	case '"':
 		tk.Type = token.STRING
 		tk.Literal = l.readString()
 	case '[':
-		tk = NewToken(token.LS_BRACKET, l.ch , l.line , l.column)
+		tk = NewToken(token.LS_BRACKET, l.ch, l.line, l.column)
 	case ']':
-		tk = NewToken(token.RS_BRACKET, l.ch , l.line , l.column)
+		tk = NewToken(token.RS_BRACKET, l.ch, l.line, l.column)
 	case ':':
-		tk = NewToken(token.COLON, l.ch , l.line , l.column)
+		tk = NewToken(token.COLON, l.ch, l.line, l.column)
 	case 0:
 		tk.Literal = ""
 		tk.Type = token.EOF
@@ -120,7 +135,7 @@ func (l *Lexer) NextToken() token.Token {
 			tk.Literal = l.readNum()
 			return tk
 		} else {
-			tk = NewToken(token.ILLEGAL, l.ch , l.line , l.column)
+			tk = NewToken(token.ILLEGAL, l.ch, l.line, l.column)
 		}
 
 	}
@@ -147,19 +162,19 @@ func (l *Lexer) eatWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		if l.ch == '\n' {
 			l.line += 1
-            l.column = 1
+			l.column = 1
 		}
 		l.readChar()
 	}
 }
 
-func NewToken(tokType token.TokenType, ch rune, line int , col int) token.Token {
+func NewToken(tokType token.TokenType, ch rune, line int, col int) token.Token {
 
 	return token.Token{
 		Type:    tokType,
 		Literal: string(ch),
 		LineNo:  line,
-        Column: col,
+		Column:  col,
 	}
 
 }

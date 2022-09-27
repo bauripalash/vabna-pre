@@ -360,7 +360,7 @@ func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
 	lval := l.(*object.Integer).Value
 	rval := r.(*object.Integer).Value
-
+	//fmt.Println(op)
 	switch op {
 	case "+":
 		return &object.Integer{Value: lval + rval}
@@ -378,6 +378,10 @@ func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
 		return getBoolObj(lval == rval)
 	case "!=":
 		return getBoolObj(lval != rval)
+	case ">=":
+		return getBoolObj(lval >= rval)
+	case "<=":
+		return getBoolObj(lval <= rval)
 
 	default:
 		return NewErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())

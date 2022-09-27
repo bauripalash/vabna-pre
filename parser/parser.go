@@ -29,6 +29,8 @@ var precedences = map[token.TokenType]int{
 	token.NOT_EQ:     EQUALS,
 	token.LT:         LTGT,
 	token.GT:         LTGT,
+	token.GTE:        LTGT,
+	token.LTE:        LTGT,
 	token.PLUS:       SUM,
 	token.MINUS:      SUM,
 	token.DIV:        PROD,
@@ -83,7 +85,9 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regInfix(token.EQEQ, p.parseInfixExpr)
 	p.regInfix(token.NOT_EQ, p.parseInfixExpr)
 	p.regInfix(token.LT, p.parseInfixExpr)
+	p.regInfix(token.GTE, p.parseInfixExpr)
 	p.regInfix(token.GT, p.parseInfixExpr)
+	p.regInfix(token.LTE, p.parseInfixExpr)
 	p.regInfix(token.LPAREN, p.parseCallExpr)
 	p.regInfix(token.LS_BRACKET, p.parseIndexExpr)
 
@@ -186,7 +190,7 @@ func (p *Parser) parseFunc() ast.Expr {
 	}
 
 	fl := &ast.FunctionLit{Token: p.curTok}
-	fmt.Println(fl.Token)
+	//fmt.Println(fl.Token)
 	if !p.peek(token.LPAREN) {
 		return nil
 	}

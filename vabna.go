@@ -64,46 +64,50 @@ func main() {
 
 	//fmt.Println(name[12])
 
-    args := os.Args[1:]
+	args := os.Args[1:]
 
-    if len(args) >= 1{
-        filename := args[0]
-        _,err := os.Stat(filename)
+	if len(args) >= 1 {
+		filename := args[0]
+		_, err := os.Stat(filename)
 
-        if errors.Is(err , os.ErrNotExist){
-            log.Fatalf("File `%s` does not exist!" , filename)
-        }
+		if errors.Is(err, os.ErrNotExist) {
+			log.Fatalf("File `%s` does not exist!", filename)
+		}
 
-        f, err := os.ReadFile(filename)
+		f, err := os.ReadFile(filename)
 
-        if err != nil{
-            log.Fatalf("Cannot read `%s`" , filename)
-        }
+		if err != nil {
+			log.Fatalf("Cannot read `%s`", filename)
+		}
 
-        //fmt.Println(string(f))
+		//fmt.Println(string(f))
 
-        lx := lexer.NewLexer(string(f))
-        ps := parser.NewParser(&lx)
-        at := ps.ParseProg()
-        
-        if len(ps.GetErrors()) != 0{
-           repl.ShowParseErrors(os.Stdin , ps.GetErrors()) 
-           log.Fatalf("fix above mentioned errors first!")
-        } 
-        env := object.NewEnv()
-        evd := evaluator.Eval(at , env)
+		lx := lexer.NewLexer(string(f))
+		ps := parser.NewParser(&lx)
+		at := ps.ParseProg()
 
-        if evd != nil{
-            fmt.Println(evd.Inspect())
-        }
+		if len(ps.GetErrors()) != 0 {
+			repl.ShowParseErrors(os.Stdin, ps.GetErrors())
+			log.Fatalf("fix above mentioned errors first!")
+		}
+		env := object.NewEnv()
+		evd := evaluator.Eval(at, env)
 
-        
+		if evd != nil {
+			fmt.Println(evd.Inspect())
+		}
 
-        //fmt.Println(args[0])
+		//fmt.Println(args[0])
 
-    }
+	}
 
 	startRepl := false
+
+	////
+	//var name = "Palash Bauri"
+	//var age = 20
+	//fmt.Println(age + 2001)
+	////
 
 	if startRepl {
 		user, err := user.Current()

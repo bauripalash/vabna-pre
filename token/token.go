@@ -43,7 +43,9 @@ const (
 	EXC = "!"
 
 	LT        = "<"
+	LTE       = "<="
 	GT        = ">"
+	GTE       = ">="
 	SEMICOLON = ";"
 	COMMA     = ","
 	LPAREN    = "("
