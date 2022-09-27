@@ -3,10 +3,10 @@ package token
 type TokenType string
 
 type Token struct {
-	Type     TokenType
-	Literal  string
-	LineNo   int
-	Position int
+	Type    TokenType
+	Literal string
+	LineNo  int
+	Column  int
 }
 
 const (
@@ -64,6 +64,21 @@ const (
 	ELSE   = "ELSE"
 	RETURN = "RETURN"
 )
+
+var HumanFriendly = map[string]string{
+
+	IDENT:  "নাম",
+	FUNC:   "kaj",
+	LET:    "dhori",
+	TRUE:   "sotti",
+	FALSE:  "mittha",
+	IF:     "jodi",
+	ELSE:   "nahole",
+	RETURN: "ferau",
+	HOLO:   "holo",
+	EKTI:   "ekti",
+	TAHOLE: "tahole",
+}
 
 var Keywords = map[string]TokenType{
 

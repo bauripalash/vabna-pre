@@ -42,7 +42,7 @@ type Parser struct {
 	curTok  token.Token
 	peekTok token.Token
 
-	errs []string
+	errs []errs.ParserError
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
@@ -56,7 +56,7 @@ type (
 func NewParser(l *lexer.Lexer) *Parser {
 
 	p := &Parser{lx: l,
-		errs: []string{},
+		errs: []errs.ParserError{},
 	}
 
 	//register prefix functions
@@ -264,7 +264,7 @@ func (p *Parser) parseCallArgs() []ast.Expr {
 }
 */
 
-func (p *Parser) GetErrors() []string {
+func (p *Parser) GetErrors() []errs.ParserError {
 	return p.errs
 }
 
@@ -277,9 +277,14 @@ func (p *Parser) regInfix(tokenType token.TokenType, fn infixParseFn) {
 }
 
 func (p *Parser) peekErr(t token.TokenType) {
-	msg := fmt.Sprintf("expected token %s, but got %s instead", t, p.peekTok.Type)
-
-	p.errs = append(p.errs, msg)
+	expectedToken := t
+	if len(t) > 1 {
+		expectedToken = token.TokenType(token.HumanFriendly[string(t)])
+	}
+	//msg := fmt.Sprintf(errs.Errs["EXPECTED_GOT"], expectedToken, p.peekTok.Literal)
+	newerr := errs.PeekError{Expected: expectedToken, Got: p.peekTok}
+	p.errs = append(p.errs, &newerr)
+	//p.errs = append(p.errs, errs.NewParserError(errs.EXPECTED_GOT, p.peekTok))
 }
 
 func (p *Parser) nextToken() {
@@ -372,11 +377,11 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 }
 
 func (p *Parser) noPrefixFunctionErr(t token.TokenType) {
-	var msg string
+	var msg errs.ParserError
 	if t == token.FUNC {
-		msg = fmt.Sprintf(errs.Errs["NO_EKTI_BEFORE_FN"], t)
+		msg = &errs.NoEktiError{Type: t}
 	} else {
-		msg = fmt.Sprintf("no prefix function for %s", t)
+		msg = &errs.NoPrefixSuffixError{Type: t}
 	}
 	p.errs = append(p.errs, msg)
 }
@@ -440,7 +445,7 @@ func (p *Parser) parseIntegerLit() ast.Expr {
 	value, err := strconv.ParseInt(p.curTok.Literal, 0, 64)
 
 	if err != nil {
-		msg := fmt.Sprintf("Could not parse %s as Interger", p.curTok)
+		msg := &errs.IntegerParseError{Token: p.curTok}
 		p.errs = append(p.errs, msg)
 		return nil
 	}

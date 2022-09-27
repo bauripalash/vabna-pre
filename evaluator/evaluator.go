@@ -117,7 +117,7 @@ func evalHashLit(node *ast.HashLit, env *object.Env) object.Obj {
 		hashkey, ok := key.(object.Hashable)
 
 		if !ok {
-			return newErr("object cannot be used as hash key %s", key.Type())
+			return NewErr("object cannot be used as hash key %s", key.Type())
 		}
 
 		val := Eval(vNode, env)
@@ -142,7 +142,7 @@ func evalIndexExpr(left, index object.Obj) object.Obj {
 	case left.Type() == object.HASH_OBJ:
 		return evalHashIndexExpr(left, index)
 	default:
-		return newErr("Unsupported Index Operator %s ", left.Type())
+		return NewErr("Unsupported Index Operator %s ", left.Type())
 	}
 
 }
@@ -154,7 +154,7 @@ func evalHashIndexExpr(hash, index object.Obj) object.Obj {
 	key, ok := index.(object.Hashable)
 
 	if !ok {
-		return newErr("This cannot be used as hash key %s", index.Type())
+		return NewErr("This cannot be used as hash key %s", index.Type())
 	}
 
 	pair, ok := hashO.Pairs[key.HashKey()]
@@ -189,12 +189,12 @@ func applyFunc(fn object.Obj, args []object.Obj) object.Obj {
 			return unwrapRValue(evd)
 		} else {
 
-			return newErr("Function call doesn't have required arguments provided; wanted = %d but got %d", len(fn.Params), len(args))
+			return NewErr("Function call doesn't have required arguments provided; wanted = %d but got %d", len(fn.Params), len(args))
 		}
 	case *object.Builtin:
 		return fn.Fn(args...)
 	default:
-		return newErr("%s is not a function", fn.Type())
+		return NewErr("%s is not a function", fn.Type())
 
 	}
 }
@@ -245,11 +245,11 @@ func evalId(node *ast.Identifier, env *object.Env) object.Obj {
 		return builtin
 	}
 
-	return newErr("id not found : " + node.Value)
+	return NewErr("id not found : " + node.Value)
 	//	return val
 }
 
-func newErr(format string, a ...interface{}) *object.Error {
+func NewErr(format string, a ...interface{}) *object.Error {
 	return &object.Error{Msg: fmt.Sprintf(format, a...)}
 }
 
@@ -341,15 +341,15 @@ func evalInfixExpr(op string, l, r object.Obj) object.Obj {
 	case op == "!=":
 		return getBoolObj(l != r)
 	case l.Type() != r.Type():
-		return newErr("Type mismatch:  %s %s %s ", l.Type(), op, r.Type())
+		return NewErr("Type mismatch:  %s %s %s ", l.Type(), op, r.Type())
 	default:
-		return newErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
+		return NewErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
 	}
 }
 
 func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 	if op != "+" {
-		return newErr("Unknown Operator %s %s %s", l.Type(), op, r.Type())
+		return NewErr("Unknown Operator %s %s %s", l.Type(), op, r.Type())
 	}
 
 	lval := l.(*object.String).Value
@@ -380,7 +380,7 @@ func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
 		return getBoolObj(lval != rval)
 
 	default:
-		return newErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
+		return NewErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
 	}
 }
 
@@ -391,14 +391,14 @@ func evalPrefixExpr(op string, right object.Obj) object.Obj {
 	case "-":
 		return evalMinusPrefOp(right)
 	default:
-		return newErr("Unknown Operator : %s%s", op, right.Type())
+		return NewErr("Unknown Operator : %s%s", op, right.Type())
 
 	}
 }
 
 func evalMinusPrefOp(right object.Obj) object.Obj {
 	if right.Type() != object.INT_OBJ {
-		return newErr("unknown Operator : -%s", right.Type())
+		return NewErr("unknown Operator : -%s", right.Type())
 	}
 	val := right.(*object.Integer).Value
 	return &object.Integer{Value: -val}

@@ -3,12 +3,13 @@ package evaluator
 import (
 	"fmt"
 	"vabna/object"
+	"vabna/stdlib"
 )
 
 func lenFunc(args []object.Obj) object.Obj {
 
 	if len(args) != 1 {
-		return newErr("wrong number of arguments. got %d but wanted 1", len(args))
+		return NewErr("wrong number of arguments. got %d but wanted 1", len(args))
 	}
 
 	switch arg := args[0].(type) {
@@ -17,18 +18,18 @@ func lenFunc(args []object.Obj) object.Obj {
 	case *object.Array:
 		return &object.Integer{Value: int64(len(arg.Elms))}
 	default:
-		return newErr("argument type %s to `len` is not supported", args[0].Type())
+		return NewErr("argument type %s to `len` is not supported", args[0].Type())
 	}
 }
 
 func firstFunc(args []object.Obj) object.Obj {
 
 	if len(args) != 1 {
-		return newErr("wrong number of argument %d", len(args))
+		return NewErr("wrong number of argument %d", len(args))
 	}
 
 	if args[0].Type() != object.ARRAY_OBJ {
-		return newErr("first cannot be used with %s", args[0].Type())
+		return NewErr("first cannot be used with %s", args[0].Type())
 	}
 
 	array := args[0].(*object.Array)
@@ -41,11 +42,11 @@ func firstFunc(args []object.Obj) object.Obj {
 func lastFunc(args []object.Obj) object.Obj {
 
 	if len(args) != 1 {
-		return newErr("wrong number of argument %d", len(args))
+		return NewErr("wrong number of argument %d", len(args))
 	}
 
 	if args[0].Type() != object.ARRAY_OBJ {
-		return newErr("last cannot be used with %s", args[0].Type())
+		return NewErr("last cannot be used with %s", args[0].Type())
 	}
 
 	array := args[0].(*object.Array)
@@ -59,11 +60,11 @@ func lastFunc(args []object.Obj) object.Obj {
 func restFunc(args []object.Obj) object.Obj {
 
 	if len(args) != 1 {
-		return newErr("wrong number of argument %d", len(args))
+		return NewErr("wrong number of argument %d", len(args))
 	}
 
 	if args[0].Type() != object.ARRAY_OBJ {
-		return newErr("rest cannot be used with %s", args[0].Type())
+		return NewErr("rest cannot be used with %s", args[0].Type())
 	}
 
 	array := args[0].(*object.Array)
@@ -79,11 +80,11 @@ func restFunc(args []object.Obj) object.Obj {
 func pushFunc(args []object.Obj) object.Obj {
 
 	if len(args) != 2 {
-		return newErr("wrong number of argument %d", len(args))
+		return NewErr("wrong number of argument %d", len(args))
 	}
 
 	if args[0].Type() != object.ARRAY_OBJ {
-		return newErr("push cannot be used with %s", args[0].Type())
+		return NewErr("push cannot be used with %s", args[0].Type())
 	}
 
 	arr := args[0].(*object.Array)
@@ -210,6 +211,11 @@ var builtins = map[string]*object.Builtin{
 	"dekhau": {
 		Fn: func(args ...object.Obj) object.Obj {
 			return showFunc(args)
+		},
+	},
+	"ইপচ": {
+		Fn: func(args ...object.Obj) object.Obj {
+			return stdlib.UnixTimeFunc(args)
 		},
 	},
 }

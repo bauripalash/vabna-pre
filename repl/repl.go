@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"vabna/errs"
 	"vabna/evaluator"
 	"vabna/lexer"
 	"vabna/object"
@@ -37,15 +38,15 @@ func Repl(in io.Reader, out io.Writer) {
 		}
 		evals := evaluator.Eval(prog, env)
 		if evals != nil {
-            //fmt.Println(evals)
+			//fmt.Println(evals)
 			io.WriteString(out, evals.Inspect())
 			io.WriteString(out, "\n")
 		}
 	}
 }
 
-func ShowParseErrors(out io.Writer, errs []string) {
+func ShowParseErrors(out io.Writer, errs []errs.ParserError) {
 	for _, msg := range errs {
-		io.WriteString(out, "\t ERR >"+msg+"\n")
+		io.WriteString(out, "\t ERR >"+msg.String()+"\n")
 	}
 }
