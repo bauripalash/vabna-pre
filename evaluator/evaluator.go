@@ -3,6 +3,7 @@ package evaluator
 import (
 	"fmt"
 	"vabna/ast"
+	"vabna/number"
 	"vabna/object"
 )
 
@@ -372,13 +373,14 @@ func evalNumInfixExpr(op string , l,r object.Obj) object.Obj{
     rval := r.(*object.Number).Value
     
     fmt.Println(lval.GetType() , rval.GetType())
-    switch op{
-        case "+":
-            v := lval.Add(rval)
-            return &object.Number{ Value: v , IsInt: v.IsInt }
-        default:
-            return NewErr("Num Op TODO")
+  
+    v := number.NumberOperation(op , lval , rval)
+    if v.Value != nil{
+        return &object.Number{ Value: v , IsInt: v.IsInt }
+    }else{
+        return NewErr("Unknown Operator for Numbers %s" , op)
     }
+     
 }
 
 func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
