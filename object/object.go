@@ -6,8 +6,8 @@ import (
 	"hash/fnv"
 	"strings"
 	"vabna/ast"
+	"vabna/number"
 
-	"github.com/shopspring/decimal"
 )
 
 const (
@@ -149,7 +149,7 @@ func (i *Integer) Inspect() string {
 }
 
 type Number struct{
-    Value decimal.Decimal
+    Value number.Number
     IsInt bool
 }
 
@@ -158,8 +158,9 @@ func (num *Number) Type() ObjType{
 }
 
 func (num *Number) Inspect() string{
-    return fmt.Sprintf("%s" , num.Value.String())
+    return fmt.Sprintf("%s" , num.Value.Value.String())
 }
+
 
 // Floats 1.1 , 3.14
 

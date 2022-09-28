@@ -3,9 +3,9 @@ package ast
 import (
 	"bytes"
 	"strings"
+	"vabna/number"
 	"vabna/token"
 
-	"github.com/shopspring/decimal"
 )
 
 type Node interface {
@@ -258,7 +258,7 @@ func (fl *FloatLit) String() string {
 
 type NumberLit struct{
     Token token.Token
-    Value decimal.Decimal
+    Value number.Number
     IsInt bool
 }
 

@@ -26,7 +26,7 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 	case *ast.Boolean:
 		return getBoolObj(node.Value)
     case *ast.NumberLit:
-        return &object.Number{ Value: node.Value , IsInt: node.Value.IsInteger() }
+        return &object.Number{ Value: node.Value , IsInt: node.IsInt }
 	case *ast.PrefixExpr:
 		r := Eval(node.Right, env)
 		if isErr(r) {
@@ -343,7 +343,7 @@ fmt.Println(l.Type() , r.Type())
         return evalNumInfixExpr(op , l , r)
         //}
         //fmt.Println("FI-> ", l , r)
-        return NewErr("has Float")
+        //return NewErr("has Float")
 	case l.Type() == object.STRING_OBJ && r.Type() == object.STRING_OBJ:
 		return evalStringInfixExpr(op, l, r)
 	case op == "==":
@@ -370,40 +370,12 @@ func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 func evalNumInfixExpr(op string , l,r object.Obj) object.Obj{
     lval := l.(*object.Number).Value
     rval := r.(*object.Number).Value
-
+    
+    fmt.Println(lval.GetType() , rval.GetType())
     switch op{
         case "+":
             v := lval.Add(rval)
-            return &object.Number{ Value: v , IsInt: v.IsInteger() }
-        case "-":
-            v := lval.Sub(rval)
-            return &object.Number{ Value: v , IsInt: v.IsInteger() }
-        case "*":
-            v := lval.Mul(rval)
-            return &object.Number{ Value: v , IsInt: v.IsInteger() }
-        case "/":
-            if rval.IsZero(){
-                return NewErr("Division by Zero")
-            }
-            v:= lval.Div(rval)
-            return &object.Number{ Value: v , IsInt: v.IsInteger() }
-        case "<":
-            v := lval.LessThan(rval)
-            return getBoolObj(v)
-        case ">":
-            v := lval.GreaterThan(rval)
-            return getBoolObj(v)
-        case "==":
-            v:= lval.Equal(rval)
-            return getBoolObj(v)
-        case "!=":
-            return getBoolObj(!lval.Equal(rval))
-        case ">=":
-            v:= lval.GreaterThanOrEqual(rval)
-            return getBoolObj(v)
-        case "<=":
-            v := lval.LessThanOrEqual(rval)
-            return getBoolObj(v)
+            return &object.Number{ Value: v , IsInt: v.IsInt }
         default:
             return NewErr("Num Op TODO")
     }

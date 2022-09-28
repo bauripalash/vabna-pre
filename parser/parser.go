@@ -2,13 +2,14 @@ package parser
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 	"vabna/ast"
 	"vabna/errs"
 	"vabna/lexer"
+	"vabna/number"
 	"vabna/token"
 
-	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -486,14 +487,22 @@ func (p *Parser) parseFloatLit() ast.Expr {
 func (p *Parser) parseNumLit() ast.Expr{
     lit := &ast.NumberLit{ Token: p.curTok }
 
-    value,  err := decimal.NewFromString(p.curTok.Literal)
-
-    if err != nil{
-        return nil
+    if number.IsFloat( p.curTok.Literal ){
+        v,_ := new(big.Float).SetString( p.curTok.Literal )
+        lit.Value =  number.Number{ Value : &number.FloatNumber{ Value: *v } , IsInt: false}
+        lit.IsInt = false
+    }else{
+        v,_ := new(big.Int).SetString(p.curTok.Literal , 10)
+        lit.Value = number.Number{ Value: &number.IntNumber{ Value: *v } , IsInt: true }
+        lit.IsInt = true
     }
 
-    lit.IsInt = value.IsInteger()
-    lit.Value = value
+    //if err != nil{
+    //    return nil
+    //}
+
+    //lit.IsInt = value.IsInteger()
+    //lit.Value = value
 
     return lit
 }
