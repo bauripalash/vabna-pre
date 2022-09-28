@@ -22,7 +22,7 @@ import (
 )
 
 func init() {
-	log.SetLevel(log.WarnLevel)
+	log.SetLevel(log.DebugLevel)
 	log.SetFormatter(&log.TextFormatter{
 		PadLevelText:  true,
 		FullTimestamp: true,

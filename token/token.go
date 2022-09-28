@@ -32,6 +32,8 @@ const (
 
 	FLOAT = "FLOAT"
 
+    NUM = "NUMBER"
+
 	//Equal = sign; for assignment
 	EQ = "="
 

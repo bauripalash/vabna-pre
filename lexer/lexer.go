@@ -131,13 +131,11 @@ func (l *Lexer) NextToken() token.Token {
 			tk.Type = token.LookupIdent(tk.Literal)
 			return tk
 		} else if isDigit(l.ch) {
-			lit, isF := l.readNum()
-			if isF {
-				tk.Type = token.FLOAT
-			} else {
-				tk.Type = token.INT
-			}
+			lit, _ := l.readNum()
+
+            //fmt.Println(lit)
 			tk.Literal = lit
+            tk.Type = token.NUM
 			return tk
 		} else {
 			tk = NewToken(token.ILLEGAL, l.ch, l.line, l.column)

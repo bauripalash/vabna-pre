@@ -8,6 +8,7 @@ import (
 	"vabna/lexer"
 	"vabna/token"
 
+	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -66,6 +67,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regPrefix(token.IDENT, p.parseIdent)
 	p.regPrefix(token.INT, p.parseIntegerLit)
 	p.regPrefix(token.FLOAT, p.parseFloatLit)
+    p.regPrefix(token.NUM , p.parseNumLit)
 	p.regPrefix(token.MINUS, p.parsePrefixExpr)
 	p.regPrefix(token.EXC, p.parsePrefixExpr)
 	p.regPrefix(token.TRUE, p.parseBool)
@@ -464,8 +466,10 @@ func (p *Parser) parseIntegerLit() ast.Expr {
 
 func (p *Parser) parseFloatLit() ast.Expr {
 	lit := &ast.FloatLit{Token: p.curTok}
+    //fmt.Println(lit)
 	value, err := strconv.ParseFloat(p.curTok.Literal, 64)
 
+    
 	if err != nil {
 		e := &errs.IntegerParseError{Token: p.curTok}
 		p.errs = append(p.errs, e)
@@ -474,8 +478,24 @@ func (p *Parser) parseFloatLit() ast.Expr {
 
 	lit.Value = value
 	//fmt.Println(p.curTok.Literal)
+    //fmt.Println("F-> " , lit)
 
 	return lit
+}
+
+func (p *Parser) parseNumLit() ast.Expr{
+    lit := &ast.NumberLit{ Token: p.curTok }
+
+    value,  err := decimal.NewFromString(p.curTok.Literal)
+
+    if err != nil{
+        return nil
+    }
+
+    lit.IsInt = value.IsInteger()
+    lit.Value = value
+
+    return lit
 }
 
 func (p *Parser) parsePrefixExpr() ast.Expr {

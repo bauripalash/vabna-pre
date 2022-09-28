@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strings"
 	"vabna/token"
+
+	"github.com/shopspring/decimal"
 )
 
 type Node interface {
@@ -253,6 +255,16 @@ func (fl *FloatLit) TokenLit() string {
 func (fl *FloatLit) String() string {
 	return fl.Token.Literal
 }
+
+type NumberLit struct{
+    Token token.Token
+    Value decimal.Decimal
+    IsInt bool
+}
+
+func (nl *NumberLit) exprNode(){}
+func (nl *NumberLit) TokenLit() string{ return nl.Token.Literal }
+func (nl *NumberLit) String() string{ return nl.Token.Literal }
 
 // Prefix Expression
 

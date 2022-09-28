@@ -6,6 +6,8 @@ import (
 	"hash/fnv"
 	"strings"
 	"vabna/ast"
+
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -20,6 +22,7 @@ const (
 	BUILTIN_OBJ    = "BUILTIN"
 	ARRAY_OBJ      = "ARRAY"
 	HASH_OBJ       = "HASH"
+    NUM_OBJ = "NUM"
 )
 
 type BuiltInFunc func(args ...Obj) Obj
@@ -143,6 +146,19 @@ func (i *Integer) Type() ObjType {
 
 func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
+}
+
+type Number struct{
+    Value decimal.Decimal
+    IsInt bool
+}
+
+func (num *Number) Type() ObjType{
+    return NUM_OBJ
+}
+
+func (num *Number) Inspect() string{
+    return fmt.Sprintf("%s" , num.Value.String())
 }
 
 // Floats 1.1 , 3.14

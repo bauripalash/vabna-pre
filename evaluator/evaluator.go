@@ -17,12 +17,16 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 	case *ast.Program:
 		return evalProg(node, env)
 	case *ast.ExprStmt:
-		//fmt.Println("Eval Expr => ", node)
+		fmt.Println("Eval Expr => ", node.Expr)
 		return Eval(node.Expr, env)
 	case *ast.IntegerLit:
 		return &object.Integer{Value: node.Value}
+    case *ast.FloatLit:
+        return &object.Float{ Value: node.Value}
 	case *ast.Boolean:
 		return getBoolObj(node.Value)
+    case *ast.NumberLit:
+        return &object.Number{ Value: node.Value , IsInt: node.Value.IsInteger() }
 	case *ast.PrefixExpr:
 		r := Eval(node.Right, env)
 		if isErr(r) {
@@ -330,10 +334,16 @@ func isTruthy(obj object.Obj) bool {
 }
 
 func evalInfixExpr(op string, l, r object.Obj) object.Obj {
-
+fmt.Println(l.Type() , r.Type())
 	switch {
 	case l.Type() == object.INT_OBJ && r.Type() == object.INT_OBJ:
 		return evalIntInfixExpr(op, l, r)
+
+    case l.Type() == object.NUM_OBJ && r.Type() == object.NUM_OBJ:
+        return evalNumInfixExpr(op , l , r)
+        //}
+        //fmt.Println("FI-> ", l , r)
+        return NewErr("has Float")
 	case l.Type() == object.STRING_OBJ && r.Type() == object.STRING_OBJ:
 		return evalStringInfixExpr(op, l, r)
 	case op == "==":
@@ -355,6 +365,48 @@ func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 	lval := l.(*object.String).Value
 	rval := r.(*object.String).Value
 	return &object.String{Value: lval + rval}
+}
+
+func evalNumInfixExpr(op string , l,r object.Obj) object.Obj{
+    lval := l.(*object.Number).Value
+    rval := r.(*object.Number).Value
+
+    switch op{
+        case "+":
+            v := lval.Add(rval)
+            return &object.Number{ Value: v , IsInt: v.IsInteger() }
+        case "-":
+            v := lval.Sub(rval)
+            return &object.Number{ Value: v , IsInt: v.IsInteger() }
+        case "*":
+            v := lval.Mul(rval)
+            return &object.Number{ Value: v , IsInt: v.IsInteger() }
+        case "/":
+            if rval.IsZero(){
+                return NewErr("Division by Zero")
+            }
+            v:= lval.Div(rval)
+            return &object.Number{ Value: v , IsInt: v.IsInteger() }
+        case "<":
+            v := lval.LessThan(rval)
+            return getBoolObj(v)
+        case ">":
+            v := lval.GreaterThan(rval)
+            return getBoolObj(v)
+        case "==":
+            v:= lval.Equal(rval)
+            return getBoolObj(v)
+        case "!=":
+            return getBoolObj(!lval.Equal(rval))
+        case ">=":
+            v:= lval.GreaterThanOrEqual(rval)
+            return getBoolObj(v)
+        case "<=":
+            v := lval.LessThanOrEqual(rval)
+            return getBoolObj(v)
+        default:
+            return NewErr("Num Op TODO")
+    }
 }
 
 func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
