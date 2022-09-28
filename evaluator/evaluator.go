@@ -18,7 +18,7 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 	case *ast.Program:
 		return evalProg(node, env)
 	case *ast.ExprStmt:
-		fmt.Println("Eval Expr => ", node.Expr)
+		//fmt.Println("Eval Expr => ", node.Expr)
 		return Eval(node.Expr, env)
 	case *ast.IntegerLit:
 		return &object.Integer{Value: node.Value}
@@ -335,7 +335,7 @@ func isTruthy(obj object.Obj) bool {
 }
 
 func evalInfixExpr(op string, l, r object.Obj) object.Obj {
-fmt.Println(l.Type() , r.Type())
+//fmt.Println(l.Type() , r.Type())
 	switch {
 	case l.Type() == object.INT_OBJ && r.Type() == object.INT_OBJ:
 		return evalIntInfixExpr(op, l, r)
@@ -369,14 +369,18 @@ func evalStringInfixExpr(op string, l, r object.Obj) object.Obj {
 }
 
 func evalNumInfixExpr(op string , l,r object.Obj) object.Obj{
+    
+
     lval := l.(*object.Number).Value
     rval := r.(*object.Number).Value
     
-    fmt.Println(lval.GetType() , rval.GetType())
-  
-    v := number.NumberOperation(op , lval , rval)
-    if v.Value != nil{
-        return &object.Number{ Value: v , IsInt: v.IsInt }
+    //fmt.Println(lval.GetType() , rval.GetType())
+     
+    val,cval,noerr := number.NumberOperation(op , lval , rval)
+    if val.Value != nil && noerr{
+        return &object.Number{ Value: val , IsInt: val.IsInt }
+    }else if val.Value == nil && noerr{
+       return getBoolObj(cval) 
     }else{
         return NewErr("Unknown Operator for Numbers %s" , op)
     }
