@@ -20,10 +20,6 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 	case *ast.ExprStmt:
 		//fmt.Println("Eval Expr => ", node.Expr)
 		return Eval(node.Expr, env)
-	case *ast.IntegerLit:
-		return &object.Integer{Value: node.Value}
-    case *ast.FloatLit:
-        return &object.Float{ Value: node.Value}
 	case *ast.Boolean:
 		return getBoolObj(node.Value)
     case *ast.NumberLit:
@@ -142,7 +138,7 @@ func evalHashLit(node *ast.HashLit, env *object.Env) object.Obj {
 func evalIndexExpr(left, index object.Obj) object.Obj {
 
 	switch {
-	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INT_OBJ:
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.NUM_OBJ:
 		return evalArrIndexExpr(left, index)
 	case left.Type() == object.HASH_OBJ:
 		return evalHashIndexExpr(left, index)
@@ -173,11 +169,17 @@ func evalHashIndexExpr(hash, index object.Obj) object.Obj {
 
 func evalArrIndexExpr(arr, index object.Obj) object.Obj {
 	arrObj := arr.(*object.Array)
-	idx := index.(*object.Integer).Value
+	id := index.(*object.Number).Value
 
+    idx , noerr := number.GetAsInt(id)
+
+    
+    if !noerr{
+        return NewErr("Arr Index Failed")
+    }
 	max := int64(len(arrObj.Elms) - 1)
 
-	if idx < 0 || idx > max {
+	if idx < 0  || idx > max {
 		return NULL
 	}
 
@@ -337,9 +339,6 @@ func isTruthy(obj object.Obj) bool {
 func evalInfixExpr(op string, l, r object.Obj) object.Obj {
 //fmt.Println(l.Type() , r.Type())
 	switch {
-	case l.Type() == object.INT_OBJ && r.Type() == object.INT_OBJ:
-		return evalIntInfixExpr(op, l, r)
-
     case l.Type() == object.NUM_OBJ && r.Type() == object.NUM_OBJ:
         return evalNumInfixExpr(op , l , r)
         //}
@@ -387,37 +386,7 @@ func evalNumInfixExpr(op string , l,r object.Obj) object.Obj{
      
 }
 
-func evalIntInfixExpr(op string, l, r object.Obj) object.Obj {
 
-	lval := l.(*object.Integer).Value
-	rval := r.(*object.Integer).Value
-	//fmt.Println(op)
-	switch op {
-	case "+":
-		return &object.Integer{Value: lval + rval}
-	case "-":
-		return &object.Integer{Value: lval + rval}
-	case "*":
-		return &object.Integer{Value: lval * rval}
-	case "/":
-		return &object.Integer{Value: lval / rval}
-	case "<":
-		return getBoolObj(lval < rval)
-	case ">":
-		return getBoolObj(lval > rval)
-	case "==":
-		return getBoolObj(lval == rval)
-	case "!=":
-		return getBoolObj(lval != rval)
-	case ">=":
-		return getBoolObj(lval >= rval)
-	case "<=":
-		return getBoolObj(lval <= rval)
-
-	default:
-		return NewErr("unknown Operator : %s %s %s", l.Type(), op, r.Type())
-	}
-}
 
 func evalPrefixExpr(op string, right object.Obj) object.Obj {
 	switch op {
@@ -432,11 +401,11 @@ func evalPrefixExpr(op string, right object.Obj) object.Obj {
 }
 
 func evalMinusPrefOp(right object.Obj) object.Obj {
-	if right.Type() != object.INT_OBJ {
+	if right.Type() != object.NUM_OBJ {
 		return NewErr("unknown Operator : -%s", right.Type())
 	}
-	val := right.(*object.Integer).Value
-	return &object.Integer{Value: -val}
+    num := right.(*object.Number)
+    return &object.Number{ Value: number.MakeNeg(num.Value) , IsInt: num.IsInt}
 }
 
 func evalBangOp(r object.Obj) object.Obj {

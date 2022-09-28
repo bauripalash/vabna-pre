@@ -3,7 +3,6 @@ package parser
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 	"vabna/ast"
 	"vabna/errs"
 	"vabna/lexer"
@@ -66,8 +65,8 @@ func NewParser(l *lexer.Lexer) *Parser {
 	//register prefix functions
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.regPrefix(token.IDENT, p.parseIdent)
-	p.regPrefix(token.INT, p.parseIntegerLit)
-	p.regPrefix(token.FLOAT, p.parseFloatLit)
+//	p.regPrefix(token.INT, p.parseIntegerLit)
+//	p.regPrefix(token.FLOAT, p.parseFloatLit)
     p.regPrefix(token.NUM , p.parseNumLit)
 	p.regPrefix(token.MINUS, p.parsePrefixExpr)
 	p.regPrefix(token.EXC, p.parsePrefixExpr)
@@ -446,43 +445,9 @@ func (p *Parser) parseBool() ast.Expr {
 	return &ast.Boolean{Token: p.curTok, Value: p.isCurToken(token.TRUE)}
 }
 
-func (p *Parser) parseIntegerLit() ast.Expr {
 
-	lit := &ast.IntegerLit{Token: p.curTok}
 
-	value, err := strconv.ParseInt(p.curTok.Literal, 0, 64)
 
-	if err != nil {
-		msg := &errs.IntegerParseError{Token: p.curTok}
-		p.errs = append(p.errs, msg)
-		return nil
-	}
-
-	lit.Value = value
-	//p.nextToken()
-	log.Info("INT EXPR =>", value)
-
-	return lit
-}
-
-func (p *Parser) parseFloatLit() ast.Expr {
-	lit := &ast.FloatLit{Token: p.curTok}
-    //fmt.Println(lit)
-	value, err := strconv.ParseFloat(p.curTok.Literal, 64)
-
-    
-	if err != nil {
-		e := &errs.IntegerParseError{Token: p.curTok}
-		p.errs = append(p.errs, e)
-		return nil
-	}
-
-	lit.Value = value
-	//fmt.Println(p.curTok.Literal)
-    //fmt.Println("F-> " , lit)
-
-	return lit
-}
 
 func (p *Parser) parseNumLit() ast.Expr{
     lit := &ast.NumberLit{ Token: p.curTok }

@@ -227,34 +227,6 @@ func (id *Identifier) String() string {
 	return id.Value
 }
 
-//Integer Expression
-
-type IntegerLit struct {
-	Token token.Token
-	Value int64
-}
-
-func (in *IntegerLit) exprNode() {}
-func (in *IntegerLit) TokenLit() string {
-	return in.Token.Literal
-}
-
-func (in *IntegerLit) String() string {
-	return in.Token.Literal
-}
-
-type FloatLit struct {
-	Token token.Token
-	Value float64
-}
-
-func (fl *FloatLit) exprNode() {}
-func (fl *FloatLit) TokenLit() string {
-	return fl.Token.Literal
-}
-func (fl *FloatLit) String() string {
-	return fl.Token.Literal
-}
 
 type NumberLit struct{
     Token token.Token

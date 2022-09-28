@@ -22,7 +22,7 @@ const (
 	BUILTIN_OBJ    = "BUILTIN"
 	ARRAY_OBJ      = "ARRAY"
 	HASH_OBJ       = "HASH"
-    NUM_OBJ = "NUM"
+    NUM_OBJ        = "NUM"
 )
 
 type BuiltInFunc func(args ...Obj) Obj
@@ -80,10 +80,7 @@ func (b *Boolean) HashKey() HashKey {
 	return HashKey{Type: b.Type(), Value: val}
 }
 
-func (i *Integer) HashKey() HashKey {
-	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
 
-}
 
 func (s *String) HashKey() HashKey {
 
@@ -91,6 +88,23 @@ func (s *String) HashKey() HashKey {
 	h.Write([]byte(s.Value))
 
 	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
+
+func (n *Number) HashKey() HashKey{
+    h := fnv.New64a()
+    if n.Value.IsInt{
+        k := n.Value.Value.(*number.IntNumber).Value
+        h.Write(k.Bytes())
+        return HashKey{ Type: n.Type() , Value: h.Sum64() }
+    }else{
+        k := n.Value.Value.(*number.FloatNumber).Value
+        temp, _ := k.Int64()
+        h.Write([]byte(k.String() + fmt.Sprintf("%d" , temp) ))
+        return HashKey{ Type: n.Type() , Value: h.Sum64() } 
+//        h.Write()
+    }
+
+
 }
 
 //Hash Pair { a : b}
@@ -135,18 +149,7 @@ type String struct {
 func (s *String) Type() ObjType   { return STRING_OBJ }
 func (s *String) Inspect() string { return s.Value }
 
-//Integer 1,2,3,4,5.....100
-type Integer struct {
-	Value int64
-}
 
-func (i *Integer) Type() ObjType {
-	return INT_OBJ
-}
-
-func (i *Integer) Inspect() string {
-	return fmt.Sprintf("%d", i.Value)
-}
 
 type Number struct{
     Value number.Number
@@ -162,19 +165,6 @@ func (num *Number) Inspect() string{
 }
 
 
-// Floats 1.1 , 3.14
-
-type Float struct {
-	Value float64
-}
-
-func (f *Float) Type() ObjType {
-	return FLOAT_OBJ
-}
-
-func (f *Float) Inspect() string {
-	return fmt.Sprintf("%f", f.Value)
-}
 
 //Booleans true,false
 type Boolean struct {

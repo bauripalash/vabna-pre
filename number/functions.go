@@ -5,6 +5,48 @@ import (
 	"vabna/token"
 )
 
+func MakeInt(a int64) Number{
+    return Number{ Value: &IntNumber{ Value: *big.NewInt(a) } }
+}
+
+func MakeFloat(a float64) Number{
+    return Number{Value: &FloatNumber{ Value: *big.NewFloat(a) }  }
+}
+
+func MakeNeg(a Number) Number{
+    
+    if a.IsInt{
+        ia := a.Value.(*IntNumber).Value
+        r := new(big.Int).Neg(&ia)
+        return Number{ Value: &IntNumber{ Value: *r } , IsInt: true }
+    }else{
+        fa := a.Value.(*FloatNumber).Value
+        r := new(big.Float).Neg(&fa)
+        return Number{Value: &FloatNumber{Value: *r} , IsInt: false}
+    }
+
+}
+
+func GetAsInt(a Number) (int64, bool){
+
+    if a.IsInt{
+        ia := a.Value.(*IntNumber).Value
+
+        if ia.IsInt64(){
+            return ia.Int64(),true
+        }
+    }else{
+        fa := a.Value.(*FloatNumber).Value
+
+        a,_ := fa.Int64()
+
+        return a,true
+    }
+
+    return int64(0), false
+
+}
+
 func FloatFloatCompare(op string, a big.Float, b big.Float) bool {
 	switch op {
 	case ">":

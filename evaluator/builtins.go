@@ -7,16 +7,15 @@ import (
 )
 
 func lenFunc(args []object.Obj) object.Obj {
-
 	if len(args) != 1 {
 		return NewErr("wrong number of arguments. got %d but wanted 1", len(args))
 	}
 
 	switch arg := args[0].(type) {
 	case *object.String:
-		return &object.Integer{Value: int64(len(arg.Value))}
+		return object.MakeIntNumber(int64(len(arg.Value)))
 	case *object.Array:
-		return &object.Integer{Value: int64(len(arg.Elms))}
+		return object.MakeIntNumber(int64(len(arg.Elms)))
 	default:
 		return NewErr("argument type %s to `len` is not supported", args[0].Type())
 	}
