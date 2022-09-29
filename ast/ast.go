@@ -332,6 +332,24 @@ func (i *IfExpr) String() string {
 
 }
 
+type WhileExpr struct{
+    Token token.Token
+    Cond Expr
+    StmtBlock *BlockStmt
+}
+
+func (w *WhileExpr) exprNode() {}
+func (w *WhileExpr) TokenLit() string { return w.Token.Literal }
+func (w *WhileExpr) String() string{
+    var out bytes.Buffer
+    out.WriteString("while")
+    out.WriteString(w.Cond.String())
+    out.WriteString(" ")
+    out.WriteString(w.StmtBlock.String())
+
+    return out.String()
+}
+
 type FunctionLit struct {
 	Token  token.Token // The 'fn' token
 	Params []*Identifier

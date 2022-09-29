@@ -42,6 +42,8 @@ func Eval(node ast.Node, env *object.Env) object.Obj {
 		return evalInfixExpr(node.Op, l, r)
 	case *ast.IfExpr:
 		return evalIfExpr(node, env)
+    case *ast.WhileExpr:
+        return evalWhileExpr(node , env)
 	case *ast.ReturnStmt:
 		val := Eval(node.ReturnVal, env)
 		if isErr(val) {
@@ -321,6 +323,21 @@ func evalIfExpr(iex *ast.IfExpr, env *object.Env) object.Obj {
 		return NULL
 	}
 
+}
+
+func evalWhileExpr(wx *ast.WhileExpr , env *object.Env) object.Obj{
+    cond := Eval(wx.Cond , env)
+    var result object.Obj
+    if isErr(cond){
+        return cond
+    }
+
+    for isTruthy(cond){
+        result = Eval(wx.StmtBlock , env)
+        cond = Eval(wx.Cond , env)
+    }
+
+    return result
 }
 
 func isTruthy(obj object.Obj) bool {

@@ -74,6 +74,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.regPrefix(token.FALSE, p.parseBool)
 	p.regPrefix(token.LPAREN, p.parseGroupedExpr)
 	p.regPrefix(token.IF, p.parseIfExpr)
+    p.regPrefix(token.WHILE , p.parseWhileExpr)
 	p.regPrefix(token.EKTI, p.parseFunc)
 	p.regPrefix(token.STRING, p.parseStringLit)
 	p.regPrefix(token.LS_BRACKET, p.parseArrLit)
@@ -543,6 +544,25 @@ func (p *Parser) parseIfExpr() ast.Expr {
 	}
 
 	return exp
+}
+
+func (p *Parser) parseWhileExpr() ast.Expr{
+    
+    exp := &ast.WhileExpr{ Token: p.curTok }
+
+    if !p.peek(token.LPAREN){ return nil }
+
+    p.nextToken()
+    exp.Cond = p.parseExpr(LOWEST)
+
+    if !p.peek(token.RPAREN){ return nil }
+
+    if !p.peek(token.LBRACE){ return nil }
+
+    exp.StmtBlock = p.parseBlockStmt()
+
+    return exp
+
 }
 
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
