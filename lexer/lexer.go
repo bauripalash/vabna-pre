@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"vabna/token"
+
 )
 
 type Lexer struct {
@@ -208,8 +209,48 @@ func (l *Lexer) readNum() (string, bool) {
 			l.readChar()
 		}
 	}
+    
+    //parseBengaliNum(l.input[pos:l.pos])
 
-	return string(l.input[pos:l.pos]), isFloat
+    return string(parseBengaliNum(l.input[pos:l.pos])), isFloat
+}
+
+func parseBengaliNum(inp []rune) []rune {
+    
+    var result []rune
+
+    for _, item := range inp{
+        
+        //fmt.Println(item)
+
+        switch item{
+            case '০' :
+                result = append(result, '0')
+            case '১':
+                result = append(result, '1')
+            case '২':
+                result = append(result, '2')
+            case '৩':
+                result = append(result, '3')
+            case '৪':
+                result = append(result, '4')
+            case '৫':
+                result = append(result, '5')
+            case '৬':
+                result = append(result, '6')
+            case '৭':
+                result = append(result, '7')
+            case '৮':
+                result = append(result, '8')
+            case '৯':
+                result = append(result, '9')
+            default:
+                result = append(result, item)
+        }
+    }
+    
+    //fmt.Println(string(result))
+    return result
 }
 
 func (l *Lexer) peekChar() rune {
@@ -222,9 +263,9 @@ func (l *Lexer) peekChar() rune {
 }
 
 func isLetter(ch rune) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || 'ঀ' <= ch && ch <= '৽'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || 'ঀ' <= ch && ch <= 'ৡ' || 'ৰ' <= ch && ch <= '৽'
 }
 
 func isDigit(ch rune) bool {
-	return '0' <= ch && ch <= '9'
+    return '0' <= ch && ch <= '9' || '০' <= ch && ch <= '৯'
 }

@@ -13,6 +13,8 @@ func TestNextToken(t *testing.T) {
     dhori nach = ekti kaj(lok) {
         dekhau(lok + " is dancing");
     }
+    dhori sonkhya = ১০০;
+    ১0০৯
     `
     
     tests := []struct{
@@ -50,6 +52,13 @@ func TestNextToken(t *testing.T) {
         {token.STRING , " is dancing"},
         { token.RPAREN , ")" },
         {token.SEMICOLON , ";"},
+        {token.RBRACE , "}"},
+        { token.LET , "dhori" },
+        {token.IDENT , "sonkhya"},
+        {token.EQ , "="},
+        {token.NUM , "100"},
+        { token.SEMICOLON , ";" },
+        {token.NUM , "1009"},
 
 
     }
