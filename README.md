@@ -1,3 +1,5 @@
+# Development repo and predecessor to [pankti](https://github.com/bauripalash/pankti)
+
 ![Vabna Programming Language](./images/vabna_cover.jpg)
 
 ## Introduction
